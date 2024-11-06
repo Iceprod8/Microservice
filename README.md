@@ -1,2 +1,1 @@
-# Microservice
- 
+# Placeholder content for README.md
