@@ -1,1 +1,64 @@
-# Placeholder content for docker-compose.yml
+version: '3.8'
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "80:80"
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+
+  list_service:
+    build: ./list_service
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/list_db
+
+  movie_service:
+    build: ./movie_service
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/movie_db
+
+  reco_service:
+    build: ./reco_service
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/reco_db
+
+  user_service:
+    build: ./user_service
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/user_db
+
+  postgres:
+    image: postgres:17.0-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
