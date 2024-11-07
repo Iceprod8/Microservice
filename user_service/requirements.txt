@@ -1,5 +1,7 @@
-fastapi
-sqlalchemy
-psycopg2
-passlib[bcrypt]
-uvicorn
+flask
+flask_sqlalchemy
+marshmallow
+marshmallow-sqlalchemy
+psycopg2-binary
+werkzeug
+python-dotenv

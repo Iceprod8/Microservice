@@ -1,20 +1,25 @@
-# Utiliser une image officielle Python
-FROM python:3.9
 
-# Définir le répertoire de travail
+# Utiliser une image officielle Python comme base
+FROM python:3.9.20-alpine3.19
+
+# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier les fichiers de dépendances
+# Copier les fichiers de dépendances dans le conteneur
 COPY requirements.txt .
 
-# Installer les dépendances
-RUN pip install -r requirements.txt
+# Installer les dépendances Python
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copier le reste du code
+# Définir les variables d'environnement pour Flask
+ENV FLASK_APP=app
+ENV FLASK_ENV=development
+
+# Copier le reste du code de l'application dans le conteneur
 COPY . .
 
-# Exposer le port pour FastAPI
-EXPOSE 8000
+# Exposer le port 5000 pour Flask
+EXPOSE 5000
 
-# Commande pour démarrer l'application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Commande pour démarrer l'application Flask
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000"]

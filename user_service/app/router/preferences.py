@@ -1,9 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from .. import schemas, crud, database
+from flask import Blueprint, request, jsonify
+from ..database import db
+from ..models import UserPreference
+from ..schemas import UserPreferenceSchema
 
-router = APIRouter()
+preferences_blueprint = Blueprint("preferences", __name__)
+preference_schema = UserPreferenceSchema()
+preferences_schema = UserPreferenceSchema(many=True)
 
-@router.post("/users/{uid}/preferences", response_model=schemas.UserPreferenceCreate)
-def add_user_preference(uid: int, preference: schemas.UserPreferenceCreate, db: Session = Depends(database.get_db)):
-    return crud.create_user_preference(db=db, uid=uid, preference=preference)
+@preferences_blueprint.route("/<int:uid>/preferences", methods=["POST"])
+def add_user_preference(uid):
+    data = request.get_json()
+    new_preference = UserPreference(id_user=uid, id_genre=data["id_genre"])
+    db.session.add(new_preference)
+    db.session.commit()
+    return preference_schema.jsonify(new_preference), 201

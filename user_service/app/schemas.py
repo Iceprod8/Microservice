@@ -1,24 +1,13 @@
-from pydantic import BaseModel
-from typing import List, Optional
+from marshmallow import Schema, fields
 
-class UserCreate(BaseModel):
-    first_name: str
-    last_name: str
-    password: str
-    email: str
+class UserSchema(Schema):
+    uid = fields.Int()
+    first_name = fields.Str(required=True)
+    last_name = fields.Str(required=True)
+    email = fields.Email(required=True)
+    password = fields.Str(load_only=True, required=True)
 
-class UserLogin(BaseModel):
-    email: str
-    password: str
-
-class UserPreferenceCreate(BaseModel):
-    id_genre: int
-
-class User(BaseModel):
-    uid: int
-    first_name: str
-    last_name: str
-    email: str
-
-    class Config:
-        orm_mode = True
+class UserPreferenceSchema(Schema):
+    id = fields.Int()
+    id_user = fields.Int(required=True)
+    id_genre = fields.Int(required=True)
