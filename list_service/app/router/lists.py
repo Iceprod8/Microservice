@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from ..database import db
 from ..models import UserList, ListMovie, ListType
 from ..schemas import UserListSchema, ListMovieSchema, ListTypeSchema
+from ..validators import validate_movie, validate_user
 
 list_blueprint = Blueprint("lists", __name__)
 user_list_schema = UserListSchema()
@@ -12,8 +13,13 @@ list_movies_schema = ListMovieSchema(many=True)
 # Route pour créer une nouvelle liste pour un utilisateur
 @list_blueprint.route("/users/<int:user_id>", methods=["POST"])
 def create_list(user_id):
+    # Valider l'existence de l'utilisateur
+    is_valid_user, user_data = validate_user(user_id)
+    if not is_valid_user:
+        return user_data  # Retourne le message d'erreur si l'utilisateur n'existe pas
+    
     data = request.get_json()
-    list_type = ListType.query.filter_by(name=data["list_type"]).first()
+    list_type = ListType.query.filter_by(name_list=data["list_type"]).first()
     
     if not list_type:
         return jsonify({"message": "Invalid list type"}), 400
@@ -31,9 +37,16 @@ def create_list(user_id):
 @list_blueprint.route("/<int:list_id>/movies", methods=["POST"])
 def add_movie_to_list(list_id):
     data = request.get_json()
+    movie_id = data["id_movie"]
+    
+    # Valider l'existence du film
+    is_valid_movie, movie_data = validate_movie(movie_id)
+    if not is_valid_movie:
+        return movie_data  # Retourne le message d'erreur si le film n'existe pas
+
     new_movie = ListMovie(
         id_user_list=list_id,
-        id_movie=data["id_movie"]
+        id_movie=movie_id
     )
     db.session.add(new_movie)
     db.session.commit()
@@ -75,7 +88,6 @@ def delete_list(user_id, list_id):
     db.session.delete(user_list)
     db.session.commit()
     return jsonify({"message": "List deleted successfully"}), 200
-
 
 # Schéma pour sérialiser les types de liste
 list_type_schema = ListTypeSchema(many=True)
