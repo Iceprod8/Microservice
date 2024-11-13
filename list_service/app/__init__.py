@@ -11,7 +11,7 @@ def create_app():
     init_db(app)
 
     # Enregistrement du blueprint
-    app.register_blueprint(list_blueprint, url_prefix="/list")
+    app.register_blueprint(list_blueprint, url_prefix="/lists")
 
     # Initialisation des types de listes au démarrage de l'application
     with app.app_context():
