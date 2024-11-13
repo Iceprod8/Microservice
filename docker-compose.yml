@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   gateway:
@@ -11,7 +11,7 @@ services:
       - user_service
       # - movie_service
       # - reco_service
-      # - list_service
+      - list_service
 
   user_service:
     build: ./user_service
@@ -40,14 +40,14 @@ services:
   #   environment:
   #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/reco_db
 
-  # list_service:
-  #   build: ./list_service
-  #   networks:
-  #     - my-network
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/list_db
+  list_service:
+    build: ./list_service
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/list_db
 
   postgres:
     image: postgres:13-alpine
