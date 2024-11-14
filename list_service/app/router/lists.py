@@ -1,14 +1,12 @@
 from flask import Blueprint, request, jsonify
 from ..database import db
-from ..models import UserList, ListMovie, ListType
-from ..schemas import UserListSchema, ListMovieSchema, ListTypeSchema
+from ..models import UserList,ListType
+from ..schemas import UserListSchema,ListTypeSchema
 from ..validators import validate_movie, validate_user
 
 list_blueprint = Blueprint("lists", __name__)
 user_list_schema = UserListSchema()
 user_lists_schema = UserListSchema(many=True)
-list_movie_schema = ListMovieSchema()
-list_movies_schema = ListMovieSchema(many=True)
 
 # Route pour ajouter un film dans une liste d'un utilisateur
 @list_blueprint.route("/users/<int:id_user>/<int:id_movie>/<int:id_list>", methods=["POST"])
