@@ -28,13 +28,15 @@ def add_movie_list(id_user,id_movie,id_list):
     if not list_type:
         return jsonify({"message": "Invalid list type"}), 400
     
-    if not list_type:
-        return jsonify({"message": "Invalid list type"}), 400
+    # Vérifier si l'utilisateur a déjà ajouté ce film dans cette liste
+    existing_entry = UserList.query.filter_by(id_user=id_user, id_movie=id_movie, id_list_type=id_list).first()
+    if existing_entry:
+        return jsonify({"message": "Le film est déjà présent dans cette liste pour cet utilisateur"}), 400
            
     new_list = UserList(
         id_user=id_user,
         first_name = user_data["first_name"],
-        last_name = user_data["first_name"],
+        last_name = user_data["last_name"],
         email = user_data["email"],
         id_list_type=list_type.id,
         id_movie = movie_data["uid"],
