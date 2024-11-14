@@ -32,7 +32,7 @@ def add_movie_list(id_user,id_movie,id_list):
         return jsonify({"message": "Le film est déjà présent dans cette liste pour cet utilisateur"}), 400
            
     new_list = UserList(
-        id_user=user_data["uid"],
+        id_user=id_user,
         first_name = user_data["first_name"],
         last_name = user_data["last_name"],
         email = user_data["email"],
