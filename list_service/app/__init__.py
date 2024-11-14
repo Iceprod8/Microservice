@@ -28,7 +28,7 @@ def initialize_list_types():
     # Si la table est vide, on ajoute les types de listes
     list_types = ["favoris", "a_voir", "deja_vu", "en_cours"]
     for list_type in list_types:
-        new_type = ListType(name=list_type)
+        new_type = ListType(name_list=list_type)
         db.session.add(new_type)
     db.session.commit()
     print("Types de listes initialisés dans la base de données.")
