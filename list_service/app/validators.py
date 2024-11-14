@@ -6,7 +6,7 @@ def validate_movie(movie_id):
     Vérifie si un film existe en appelant une API externe.
     Retourne un message d'erreur en cas d'absence.
     """
-    response = requests.get(f"http://localhost:80/movies/movies/{movie_id}")
+    response = requests.get(f"http://user_service:5000/movies/movies/{movie_id}")
     
     if response.status_code != 200:
         return False, jsonify({"message": "Le film n'existe pas dans le service externe"}), 404
@@ -23,7 +23,7 @@ def validate_user(user_id):
     Vérifie si un utilisateur existe en appelant une API externe de gestion des utilisateurs.
     Retourne un message d'erreur en cas d'absence.
     """
-    response = requests.get(f"http://localhost:80/users/users/{user_id}")
+    response = requests.get(f"http://user_service:5000/users/users/{user_id}")
     
     if response.status_code != 200:
         return False, jsonify({"message": "L'utilisateur n'existe pas dans le service externe"}), 404

@@ -32,7 +32,7 @@ def add_movie_list(id_user,id_movie,id_list):
         return jsonify({"message": "Le film est déjà présent dans cette liste pour cet utilisateur"}), 400
            
     new_list = UserList(
-        id_user=id_user,
+        id_user=user_data["uid"],
         first_name = user_data["first_name"],
         last_name = user_data["last_name"],
         email = user_data["email"],
@@ -46,10 +46,12 @@ def add_movie_list(id_user,id_movie,id_list):
     return jsonify(user_list_data), 201
 
 # Route pour obtenir tous les films d'une liste
-@list_blueprint.route("/<int:list_id>/movies", methods=["GET"])
-def get_list_movies(list_id):
-    movies = UserList.query.filter_by(id_list_type=list_id).all()
-    result = list_movies_schema.dump(movies)
+@list_blueprint.route("/<int:id_list>/movies", methods=["GET"])
+def get_list_movies(id_list):
+    movies = UserList.query.filter_by(id_list_type=id_list).all()
+    if not movies:
+        return jsonify({"message": "list not found"}), 404
+    result = UserListSchema.dump(movies)
     return jsonify(result), 200
 
 # Route pour supprimer un film d'une liste
@@ -66,7 +68,7 @@ def delete_movie_from_list(list_id, id_movie):
 # Route pour supprimer une liste d'un utilisateur
 @list_blueprint.route("/<int:list_id>/users/<int:user_id>", methods=["DELETE"])
 def delete_list(user_id, list_id):
-    user_list = UserList.query.filter_by(id=list_id, id_user=user_id).first()
+    user_list = UserList.query.filter_by(id_list_type=list_id, id_user=user_id).first()
     if not user_list:
         return jsonify({"message": "List not found"}), 404
     
