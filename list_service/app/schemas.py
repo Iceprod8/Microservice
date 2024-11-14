@@ -6,14 +6,11 @@ class ListTypeSchema(Schema):
 
 
 class UserListSchema(Schema):
-    id = fields.Int()
+    uid = fields.Int()
     id_user = fields.Int(required=True)  # Identifiant de l'utilisateur, récupéré via l'API du service d'utilisateurs
-    id_list_type = fields.Int(required=True)
-    list_type = fields.Nested(ListTypeSchema, only=("id", "name_list"))  # Récupère seulement l'id et le nom du type
-    movies = fields.List(fields.Nested("ListMovieSchema"))  # Récupère les films de la liste
-
-
-class ListMovieSchema(Schema):
-    id = fields.Int()
-    id_user_list = fields.Int(required=True)
+    first_name = fields.Str(required=True)  # récupéré via l'API du service d'utilisateurs
+    last_name = fields.Str(required=True)  # récupéré via l'API du service d'utilisateurs
+    email = fields.Email(required=True)  # récupéré via l'API du service d'utilisateurs
+    id_list_type = fields.Nested(ListTypeSchema, only=("id", "name_list"))  # Inclut id et name_list de ListType
     id_movie = fields.Int(required=True)  # Identifiant du film, récupéré via l'API du service de films
+    name_movie = fields.Str(required=True)  # Nom du film
