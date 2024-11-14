@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dedere
+      POSTGRES_DB: movieservice
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:dedere@db:5432/movieservice
+      - PORT=5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  postgres_data:
