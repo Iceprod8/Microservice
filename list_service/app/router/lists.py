@@ -12,18 +12,21 @@ list_movies_schema = ListMovieSchema(many=True)
 
 # Route pour ajouter un film dans une liste d'un utilisateur
 @list_blueprint.route("/users/<int:id_user>/<int:id_movie>/<int:id_list>", methods=["POST"])
-def add_movie_list(id_user):
+def add_movie_list(id_user,id_movie,id_list):
     # Valider l'existence de l'utilisateur
     is_valid_user, user_data = validate_user(id_user)
     if not is_valid_user:
         return user_data  # Retourne le message d'erreur si l'utilisateur n'existe pas
     
     # Valider l'existence du film
-    is_valid_movie,movie_data = validate_movie
+    is_valid_movie,movie_data = validate_movie(id_movie)
     if not is_valid_movie:
         return movie_data # Retourne le message d'erreur si l'utilisateur n'existe pas
 
-    list_type = ListType.query.get(id)
+    # Vérifier si le type de liste existe
+    list_type = ListType.query.get(id_list)
+    if not list_type:
+        return jsonify({"message": "Invalid list type"}), 400
     
     if not list_type:
         return jsonify({"message": "Invalid list type"}), 400
