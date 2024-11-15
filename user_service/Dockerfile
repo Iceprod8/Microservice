@@ -1,4 +1,3 @@
-
 # Utiliser une image officielle Python comme base
 FROM python:3.9.20-alpine3.19
 

@@ -1,1 +1,7 @@
-# Placeholder content for requirements.txt
+flask
+requests
+flask-sqlalchemy 
+psycopg2-binary
+marshmallow
+marshmallow-sqlalchemy
+python-dotenv

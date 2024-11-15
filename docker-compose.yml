@@ -9,7 +9,7 @@ services:
       - my-network
     depends_on:
       - user_service
-      # - movie_service
+      - movie_service
       # - reco_service
       - list_service
 
@@ -22,14 +22,14 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/user_db
 
-  # movie_service:
-  #   build: ./movie_service
-  #   networks:
-  #     - my-network
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/movie_db
+  movie_service:
+    build: ./movie_service
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/movie_db
 
   # reco_service:
   #   build: ./reco_service
