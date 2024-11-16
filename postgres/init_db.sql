@@ -1,0 +1,4 @@
+CREATE DATABASE list_db;
+CREATE DATABASE movie_db;
+CREATE DATABASE reco_db;
+CREATE DATABASE user_db;

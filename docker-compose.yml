@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   gateway:
@@ -9,6 +9,9 @@ services:
       - my-network
     depends_on:
       - user_service
+      - movie_service
+      # - reco_service
+      - list_service
       # - movie_service
       - reco_service
       # - list_service
@@ -22,14 +25,14 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/user_db
 
-  # movie_service:
-  #   build: ./movie_service
-  #   networks:
-  #     - my-network
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/movie_db
+  movie_service:
+    build: ./movie_service
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/movie_db
 
   reco_service:
     build: ./reco_service
@@ -40,17 +43,19 @@ services:
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/reco_db
 
-  # list_service:
-  #   build: ./list_service
-  #   networks:
-  #     - my-network
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/list_db
+  list_service:
+    build: ./list_service
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/list_db
 
   postgres:
     image: postgres:13-alpine
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
