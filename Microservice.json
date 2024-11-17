@@ -76,14 +76,15 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:80/users",
+									"raw": "http://localhost:80/users/all",
 									"protocol": "http",
 									"host": [
 										"localhost"
 									],
 									"port": "80",
 									"path": [
-										"users"
+										"users",
+										"all"
 									]
 								}
 							},
@@ -370,7 +371,7 @@
 									"raw": "{\r\n    \"title\": \"Inception\",\r\n    \"genre_id\": 1,\r\n    \"director\": \"Christopher Nolan\",\r\n    \"release_date\": \"2010-07-16\",\r\n    \"duration\": 148,\r\n    \"synopsis\": \"A skilled thief is given a chance at redemption...\",\r\n    \"cast\": \"Leonardo DiCaprio, Joseph Gordon-Levitt\"\r\n}"
 								},
 								"url": {
-									"raw": "http://localhost:80/movies/movies",
+									"raw": "http://localhost:80/movies/add",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -378,7 +379,7 @@
 									"port": "80",
 									"path": [
 										"movies",
-										"movies"
+										"add"
 									]
 								}
 							},
@@ -390,7 +391,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:80/movies/movies",
+									"raw": "http://localhost:80/movies/all",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -398,7 +399,7 @@
 									"port": "80",
 									"path": [
 										"movies",
-										"movies"
+										"all"
 									]
 								}
 							},
@@ -410,14 +411,13 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:80/movies/movies/:id",
+									"raw": "http://localhost:80/movies/:id",
 									"protocol": "http",
 									"host": [
 										"localhost"
 									],
 									"port": "80",
 									"path": [
-										"movies",
 										"movies",
 										":id"
 									],
@@ -446,14 +446,13 @@
 									"raw": "{\"title\": \"Inception Updated\", \"duration\": 150}"
 								},
 								"url": {
-									"raw": "http://localhost:80/movies/movies/:id",
+									"raw": "http://localhost:80/movies/:id",
 									"protocol": "http",
 									"host": [
 										"localhost"
 									],
 									"port": "80",
 									"path": [
-										"movies",
 										"movies",
 										":id"
 									],

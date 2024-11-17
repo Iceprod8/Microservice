@@ -1,13 +1,13 @@
 from flask import Blueprint, request, jsonify
 from ..database import db
-from ..models import Rating
+from ..models import Rating, Movie
 from ..schemas import RatingSchema
 
-rating_blueprint = Blueprint("movies", __name__)
+rating_blueprint = Blueprint("ratings", __name__)
 rating_schema = RatingSchema()
 ratings_schema = RatingSchema(many=True)
 
-@rating_blueprint.route("/movies/<int:id>/rate", methods=["POST"])
+@rating_blueprint.route("/<int:id>/rate", methods=["POST"])
 def rate_movie(id):
     data = request.get_json()
     user_id = data.get("user_id")
@@ -18,7 +18,7 @@ def rate_movie(id):
     if score < 1 or score > 5:
         return jsonify({"error": "Score must be between 1 and 5"}), 400
 
-    movie = Rating.query.get(id)
+    movie = Movie.query.get(id)
     if not movie:
         return jsonify({"error": "Movie not found"}), 404
 
