@@ -187,14 +187,14 @@ GenreMoviePreferenceUser = {
 @recommendations_blueprint.route("/getRecommendation/<int:user_id>/<int:id_list>", methods=["GET"])
 def get_recommendations(user_id, id_list):
     try:
-        movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres = get_all_datas(user_id, id_list)
-        recommendations = generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres)
+        movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen = get_all_datas(user_id, id_list)
+        recommendations = generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen)
         return jsonify(recommendations), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 def getListFavoris(id_list):
-    url = f"{BASE_URL}/{id_list}/movies/recommendations"
+    url = f"{BASE_URL}/{id_list}/movies/recommendations" #remplacer id_list par l'id de la liste favoris dans la table list
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()
@@ -207,7 +207,7 @@ def getUserRatingMovies(user_id):
         return response.json()
     return []
 
-def getPopularMovie():
+def getPopularMovies():
     url = f"{BASE_URL}/movies/popular"
     response = requests.get(url)
     if response.status_code == 200:
@@ -218,34 +218,42 @@ def getPreferredGenres():
     url = f"{BASE_URL}/genres"
     response = requests.get(url)
     if response.status_code == 200:
+        return response.preferred_genres.json()
+    return []
+
+def getAlreadySeenMovies():
+    url = f"{BASE_URL}/{id_list}/movies/recommendations" #remplacer id_list par l'id de la liste Deja vu dans la table list
+    response = requests.get(url)
+    if response.status_code == 200:
         return response.json()
     return []
 
 def get_all_datas(user_id, id_list):
     movies_fav_list = getListFavoris(id_list)
-    movie_best_rating = getPopularMovie()
+    movie_best_rating = getPopularMovies()
     movie_user_rating = getUserRatingMovies(user_id)
     preferred_genres = getPreferredGenres()
-    return movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres
+    movies_already_seen = getAlreadySeenMovies()
+    return movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen
 
-def generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres):
+def generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen):
     recommendations = []
 
-    # Filtrer les films en fonction des genres préférés
-    fav_movies = [movie for movie in movies_fav_list if movie["genre"] in preferred_genres]
-    best_rating_movies = [movie for movie in movie_best_rating if movie["genre"] in preferred_genres]
+    #recuperer les realisateurs des films dans la liste de favoris, et des films bien notés par l'user
+    directors_user_rating = [movie["director"] for movie in movie_user_rating]
+    directors_fav_movies = [movie["director"] for movie in movies_fav_list]
+    all_directors = directors_user_rating + directors_fav_movies
+    unique_directors = list(set(all_directors))
+
+    best_movies_for_genres_users = [movie for movie in movie_best_rating if movie["genre"] in preferred_genres]
+    best_movies_for_directors_users = [movie for movie in movie_best_rating if movie["directors"] in unique_directors]
+
     user_rating_movies = [movie for movie in movie_user_rating if movie["genre"] in preferred_genres]
 
-    # Prioriser les favoris, les meilleurs films et les films bien notés par l'utilisateur
-    recommendations.extend(random.sample(fav_movies, min(len(fav_movies), 3)))
-    recommendations.extend(random.sample(best_rating_movies, min(len(best_rating_movies), 3)))
-    recommendations.extend(random.sample(user_rating_movies, min(len(user_rating_movies), 3)))
+    # récuperer tous les films et supprimer ceux déjà vu
+    all_movies = best_movies_for_genres_users + best_movies_for_directors_users
+    recommendations = [movie for movie in all_movies if movie not in movies_already_seen]
 
-    # Compléter avec des films aléatoires si nécessaire
-    all_movies = movies_fav_list + movie_best_rating + movie_user_rating
-    additional_movies = [movie for movie in all_movies if movie["genre"] in preferred_genres and movie not in recommendations]
-    random.shuffle(additional_movies)
-    recommendations.extend(additional_movies[:10 - len(recommendations)])
-
-    # Limiter à 10 recommandations
+    #melanger la liste pour en selectionner aleatoirement 10
+    random.shuffle(recommendations)
     return recommendations[:10]
