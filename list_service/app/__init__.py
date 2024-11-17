@@ -15,6 +15,7 @@ def create_app():
 
     # Initialisation des types de listes au démarrage de l'application
     with app.app_context():
+        db.create_all()
         initialize_list_types()
 
     return app

@@ -1,5 +1,5 @@
 from flask import Flask
-from .database import init_db
+from .database import init_db, db
 from .router.users import user_blueprint
 from .router.preferences import preferences_blueprint
 
@@ -10,6 +10,9 @@ def create_app():
     init_db(app)
 
     app.register_blueprint(user_blueprint, url_prefix="/users")
-    app.register_blueprint(preferences_blueprint, url_prefix="/preferences")
+    app.register_blueprint(preferences_blueprint, url_prefix="/users")
 
+    with app.app_context():
+        db.create_all()
+        
     return app

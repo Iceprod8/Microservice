@@ -7,7 +7,7 @@ movie_blueprint = Blueprint("movies", __name__)
 movie_schema = MovieSchema()
 movies_schema = MovieSchema(many=True)
 
-@movie_blueprint.route("/movies", methods=["POST"])
+@movie_blueprint.route("/add", methods=["POST"])
 def add_movie():
     data = request.get_json()
     errors = movie_schema.validate(data)
@@ -15,16 +15,15 @@ def add_movie():
         return jsonify({"errors": errors}), 400
     
     try:
-        # Assign genre_id instead of genre relationship
         new_movie = Movie(
             title=data['title'],
-            genre_id=data['genre_id'],  # Use genre_id here instead of genre
+            genre_id=data['genre_id'],
             director=data.get('director'),
             release_date=data.get('release_date'),
             synopsis=data.get('synopsis'),
             duration=data.get('duration'),
             cast=data.get('cast'),
-            rating=data.get('rating', 0)  # Default rating to 0 if not provided
+            rating=data.get('rating', 0)
         )
         db.session.add(new_movie)
         db.session.commit()
@@ -34,7 +33,7 @@ def add_movie():
         return jsonify({"error": str(e)}), 500
 
 
-@movie_blueprint.route("/movies", methods=["GET"])
+@movie_blueprint.route("/all", methods=["GET"])
 def get_movies():
     try:
         movies = Movie.query.all()
@@ -42,7 +41,7 @@ def get_movies():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@movie_blueprint.route("/movies/<int:id>", methods=["GET"])
+@movie_blueprint.route("/<int:id>", methods=["GET"])
 def get_movie(id):
     try:
         movie = Movie.query.get(id)
@@ -53,14 +52,13 @@ def get_movie(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@movie_blueprint.route("/movies/<int:id>", methods=["PUT"])
+@movie_blueprint.route("/<int:id>", methods=["PUT"])
 def update_movie(id):
     data = request.get_json()
     movie = Movie.query.get(id)
     if not movie:
         return jsonify({"error": "Movie not found"}), 404
-
-    # Validate input data using MovieSchema (partial=True allows partial updates)
+    
     errors = movie_schema.validate(data, partial=True)
     if errors:
         return jsonify({"errors": errors}), 400
@@ -80,7 +78,7 @@ def update_movie(id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-@movie_blueprint.route("/movies/<int:id>", methods=["DELETE"])
+@movie_blueprint.route("/<int:id>", methods=["DELETE"])
 def delete_movie(id):
     try:
         movie = Movie.query.get(id)

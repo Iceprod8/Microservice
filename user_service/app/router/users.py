@@ -34,14 +34,14 @@ def login_user():
     return jsonify({"message": "Invalid credentials"}), 401
 
 # Route pour obtenir tous les utilisateurs
-@user_blueprint.route("/users", methods=["GET"])
+@user_blueprint.route("/all", methods=["GET"])
 def get_all_users():
     all_users = User.query.all()
     result = users_schema.dump(all_users)
     return jsonify(result), 200
 
 # Route pour obtenir un utilisateur par ID
-@user_blueprint.route("/users/<int:id>", methods=["GET"])
+@user_blueprint.route("/<int:id>", methods=["GET"])
 def get_single_user(id):
     user = User.query.get(id)
     if not user:
@@ -50,7 +50,7 @@ def get_single_user(id):
     return jsonify(user_data), 200
 
 # Route pour mettre à jour un utilisateur
-@user_blueprint.route("/users/<int:id>", methods=["PUT"])
+@user_blueprint.route("/<int:id>", methods=["PUT"])
 def update_user(id):
     data = request.get_json()
     user = User.query.get(id)
@@ -68,7 +68,7 @@ def update_user(id):
     return jsonify(updated_user), 200
 
 # Route pour supprimer un utilisateur
-@user_blueprint.route("/users/<int:id>", methods=["DELETE"])
+@user_blueprint.route("/<int:id>", methods=["DELETE"])
 def delete_user(id):
     user = User.query.get(id)
     if not user:

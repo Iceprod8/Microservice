@@ -1,6 +1,8 @@
 from flask import Flask
 from .database import db, init_db
 from .router.movies import movie_blueprint
+from .router.ratings import rating_blueprint
+from .router.genres import genre_blueprint
 from .models import Genre
 import os
 import json
@@ -12,6 +14,8 @@ def create_app():
     init_db(app)
 
     app.register_blueprint(movie_blueprint, url_prefix="/movies")
+    app.register_blueprint(rating_blueprint, url_prefix="/movies")
+    app.register_blueprint(genre_blueprint, url_prefix="/movies")
 
     with app.app_context():
         db.create_all()
