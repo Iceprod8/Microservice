@@ -10,11 +10,8 @@ services:
     depends_on:
       - user_service
       - movie_service
-      # - reco_service
       - list_service
-      # - movie_service
       - reco_service
-      # - list_service
 
   user_service:
     build: ./user_service
