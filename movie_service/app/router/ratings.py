@@ -44,7 +44,7 @@ def update_movie_rating(movie):
 
 @rating_blueprint.route("/users/<int:user_id>/rated_movies", methods=["GET"])
 def get_rated_movies_by_user(user_id):
-    user_ratings = Rating.query.filter_by(user_id=user_id).all()
+    user_ratings = Rating.query.filter_by(user_id=user_id).limit(50).all()
     if not user_ratings:
         return jsonify([]), 200
     rated_movies = [
