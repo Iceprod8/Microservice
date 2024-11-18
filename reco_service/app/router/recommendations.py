@@ -3,7 +3,6 @@ from ..database import db
 from ..models import Recommendation
 from ..schemas import RecommendationSchema
 import random
-import asyncio
 
 recommendations_blueprint = Blueprint("recommendations", __name__)
 recommendation_schema = RecommendationSchema()
@@ -184,16 +183,16 @@ GenreMoviePreferenceUser = {
     }
 }
 
-@recommendations_blueprint.route("/getRecommendation/<int:user_id>/<int:id_list>", methods=["GET"])
-def get_recommendations(user_id, id_list):
+@recommendations_blueprint.route("/<int:user_id>/", methods=["GET"])
+def get_recommendations(user_id):
     try:
-        movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen = get_all_datas(user_id, id_list)
+        movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen = get_all_datas(user_id)
         recommendations = generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen)
         return jsonify(recommendations), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def getListFavoris(id_list):
+def getListFavoris():
     url = f"{BASE_URL}/{id_list}/movies/recommendations" #remplacer id_list par l'id de la liste favoris dans la table list
     response = requests.get(url)
     if response.status_code == 200:
@@ -228,8 +227,8 @@ def getAlreadySeenMovies():
         return response.json()
     return []
 
-def get_all_datas(user_id, id_list):
-    movies_fav_list = getListFavoris(id_list)
+def get_all_datas(user_id):
+    movies_fav_list = getListFavoris()
     movie_best_rating = getPopularMovies()
     movie_user_rating = getUserRatingMovies(user_id)
     preferred_genres = getPreferredGenres()
@@ -247,8 +246,6 @@ def generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rati
 
     best_movies_for_genres_users = [movie for movie in movie_best_rating if movie["genre"] in preferred_genres]
     best_movies_for_directors_users = [movie for movie in movie_best_rating if movie["directors"] in unique_directors]
-
-    user_rating_movies = [movie for movie in movie_user_rating if movie["genre"] in preferred_genres]
 
     # récuperer tous les films et supprimer ceux déjà vu
     all_movies = best_movies_for_genres_users + best_movies_for_directors_users
