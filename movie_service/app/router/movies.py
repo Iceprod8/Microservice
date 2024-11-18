@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from sqlalchemy import desc
 from ..database import db
 from ..models import Movie
 from ..schemas import MovieSchema
@@ -86,6 +87,17 @@ def delete_movie(id):
             db.session.delete(movie)
             db.session.commit()
             return jsonify({"message": "Movie deleted successfully!"})
+        else:
+            return jsonify({"error": "Movie not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@movie_blueprint.route("/popular", methods=["GET"])
+def get_popular_movie():
+    try:
+        movie = Movie.query.order_by(desc(Movie.rating)).limit(50).all()
+        if movie:
+            return jsonify(movie_schema.dump(movie))
         else:
             return jsonify({"error": "Movie not found"}), 404
     except Exception as e:

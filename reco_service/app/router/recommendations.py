@@ -1,4 +1,5 @@
-from flask import Blueprint, request, jsonify
+import requests
+from flask import Blueprint, jsonify
 from ..database import db
 from ..models import Recommendation
 from ..schemas import RecommendationSchema
@@ -7,8 +8,6 @@ import random
 recommendations_blueprint = Blueprint("recommendations", __name__)
 recommendation_schema = RecommendationSchema()
 recommendation_schema = RecommendationSchema(many=True)
-
-BASE_URL = "http://localhost:80"
 
 @recommendations_blueprint.route("/<int:user_id>/", methods=["GET"])
 def get_recommendations(user_id):
@@ -20,35 +19,35 @@ def get_recommendations(user_id):
         return jsonify({"error": str(e)}), 500
 
 def getListFavoris():
-    url = f"{BASE_URL}/{id_list}/movies/recommendations"
+    url = f"http://list_service:5000/lists/1/movies/recommendations"
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()
     return []
 
 def getUserRatingMovies(user_id):
-    url = f"{BASE_URL}/users/{user_id}/rated_movies"
+    url = f"http://list_service:5000/lists/users/{user_id}/rated_movies"
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()
     return []
 
 def getPopularMovies():
-    url = f"{BASE_URL}/movies/popular"
+    url = f"http://movie_service:5000/movies/popular"
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()
     return []
 
 def getPreferredGenres():
-    url = f"{BASE_URL}/genres"
+    url = f"http://movie_service:5000/users/preferences"
     response = requests.get(url)
     if response.status_code == 200:
         return response.preferred_genres.json()
     return []
 
 def getAlreadySeenMovies():
-    url = f"{BASE_URL}/{id_list}/movies/recommendations" #remplacer id_list par l'id de la liste Deja vu dans la table list
+    url = f"http://list_service:5000/lists/3/movies" #remplacer id_list par l'id de la liste Deja vu dans la table list
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()
