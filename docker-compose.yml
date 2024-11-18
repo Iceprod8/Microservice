@@ -78,6 +78,14 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
 
+  message-broker:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - my-network
+
 networks:
   my-network:
     driver: bridge

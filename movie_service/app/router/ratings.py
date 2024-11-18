@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from ..database import db
 from ..models import Rating, Movie
 from ..schemas import RatingSchema
+from ..publisher import publish_event
 
 rating_blueprint = Blueprint("ratings", __name__)
 rating_schema = RatingSchema()
@@ -31,16 +32,38 @@ def rate_movie(id):
 
     db.session.commit()
     update_movie_rating(movie)
+    
+    publish_event("RatingCreated", {
+        "movie_id": movie.id,
+        "user_id": user_id,
+        "score": score
+    })
+
     return jsonify({"message": "Rating submitted successfully!"})
 
+
 def update_movie_rating(movie):
+    """
+    Met à jour la note moyenne d'un film et publie un événement si la note est modifiée.
+    """
     ratings = Rating.query.filter_by(movie_id=movie.id).all()
     if ratings:
         average_rating = sum(rating.score for rating in ratings) / len(ratings)
-        movie.rating = round(min(average_rating, 5), 2)
+        new_rating = round(min(average_rating, 5), 2)
     else:
-        movie.rating = 0
-    db.session.commit()
+        new_rating = 0
+
+    if movie.rating != new_rating:
+        movie.rating = new_rating
+        db.session.commit()
+
+        publish_event("MovieRatingUpdated", {
+            "movie_id": movie.id,
+            "title": movie.title,
+            "new_rating": movie.rating
+        })
+    else:
+        db.session.commit()
 
 @rating_blueprint.route("/users/<int:user_id>/rated_movies", methods=["GET"])
 def get_rated_movies_by_user(user_id):

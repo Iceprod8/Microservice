@@ -1,5 +1,6 @@
 import requests
 from flask import Blueprint, jsonify
+from ..publisher import publish_recommendation_generated
 from ..database import db
 from ..models import Recommendation
 from ..schemas import RecommendationSchema
@@ -14,6 +15,9 @@ def get_recommendations(user_id):
     try:
         movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen = get_all_datas(user_id)
         recommendations = generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen)
+
+        publish_recommendation_generated(user_id, recommendations)
+
         return jsonify(recommendations), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
