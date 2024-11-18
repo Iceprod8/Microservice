@@ -50,10 +50,12 @@ def add_movie_list(id_user, id_movie, id_list):
 # Route pour obtenir tous les films d'une liste
 @list_blueprint.route("/<int:id_list>/movies", methods=["GET"])
 def get_list_movies(id_list):
+    # Récupérer les films dans la liste donnée
     movies = UserList.query.filter_by(id_list_type=id_list).all()
     if not movies:
-        return jsonify({"message": "list not found"}), 404
-    result = UserListSchema.dump(movies)
+        return jsonify({"message": "List not found"}), 404
+    # Utilisez l'instance du schéma pour sérialiser une liste d'objets
+    result = user_lists_schema.dump(movies)
     return jsonify(result), 200
 
 # Route pour supprimer un film d'une liste

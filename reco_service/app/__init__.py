@@ -8,6 +8,6 @@ def create_app():
 
     init_db(app)
 
-    app.register_blueprint(recommendations_blueprint, url_prefix="/recommendations")
+    app.register_blueprint(recommendations_blueprint, url_prefix="/reco")
 
     return app
