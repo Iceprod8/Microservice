@@ -19,6 +19,7 @@ services:
       - my-network
     depends_on:
       - postgres
+      - message-broker
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/user_db
 
@@ -28,6 +29,7 @@ services:
       - my-network
     depends_on:
       - postgres
+      - message-broker
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/movie_db
 
@@ -37,6 +39,7 @@ services:
       - my-network
     depends_on:
       - postgres
+      - message-broker
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/reco_db
 
@@ -46,6 +49,7 @@ services:
       - my-network
     depends_on:
       - postgres
+      - message-broker
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/list_db
 

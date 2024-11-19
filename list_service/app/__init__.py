@@ -1,4 +1,6 @@
 from flask import Flask
+
+from .publisher import start_rabbitmq_consumers
 from .database import init_db, db
 from .models import ListType
 from .router.lists import list_blueprint
@@ -18,6 +20,8 @@ def create_app():
         db.create_all()
         initialize_list_types()
 
+    start_rabbitmq_consumers()
+    
     return app
 
 def initialize_list_types():

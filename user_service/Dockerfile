@@ -25,5 +25,5 @@ RUN apt-get update && apt-get install -y curl && \
 # Exposer le port 5000 pour Flask
 EXPOSE 5000
 
-# Commande pour démarrer l'application Flask avec une attente pour PostgreSQL
-CMD ["/wait-for-it.sh", "postgres:5432", "--", "flask", "run", "--host=0.0.0.0", "--port=5000"]
+# Commande pour attendre PostgreSQL et RabbitMQ avant de démarrer Flask
+CMD ["/wait-for-it.sh", "postgres:5432", "--", "/wait-for-it.sh", "message-broker:5672", "--", "flask", "run", "--host=0.0.0.0", "--port=5000"]

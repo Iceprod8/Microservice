@@ -1,5 +1,5 @@
 from .models import UserList
-from database import db
+from .database import db
 import pika
 import json
 
@@ -30,6 +30,7 @@ def movie_deleted_callback(ch, method, properties, body):
     """
     Gère les événements MovieDeleted pour supprimer les entrées de liste associées à un film.
     """
+    print("test")
     try:
         message = json.loads(body)
         movie_id = message.get('id')
