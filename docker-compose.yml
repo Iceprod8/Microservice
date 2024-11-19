@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   frontend:
@@ -18,9 +18,9 @@ services:
       - my-network
     depends_on:
       - user_service
-      # - movie_service
-      # - reco_service
-      # - list_service
+      - movie_service
+      - list_service
+      - reco_service
 
   user_service:
     build: ./user_service
@@ -28,35 +28,57 @@ services:
       - my-network
     depends_on:
       - postgres
+      - message-broker
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/user_db
 
-  # movie_service:
-  #   build: ./movie_service
-  #   networks:
-  #     - my-network
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/movie_db
+  movie_service:
+    build: ./movie_service
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+      - message-broker
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/movie_db
 
-  # reco_service:
-  #   build: ./reco_service
-  #   networks:
-  #     - my-network
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/reco_db
+  reco_service:
+    build: ./reco_service
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+      - message-broker
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/reco_db
 
-  # list_service:
-  #   build: ./list_service
-  #   networks:
-  #     - my-network
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/list_db
+  list_service:
+    build: ./list_service
+    networks:
+      - my-network
+    depends_on:
+      - postgres
+      - message-broker
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/list_db
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: nathan@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - postgres
+    networks:
+      - my-network
+    volumes:
+      - ./servers.json:/pgadmin/servers.json
+    entrypoint:
+      - /bin/sh
+      - -c
+      - mkdir -p /var/lib/pgadmin/storage/nathan_gmail.com && cp /pgadmin/servers.json /var/lib/pgadmin/storage/nathan_gmail.com/servers.json && /entrypoint.sh
 
   postgres:
     image: postgres:13-alpine
@@ -67,10 +89,15 @@ services:
       - my-network
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./postgres/init_user_db.sql:/docker-entrypoint-initdb.d/init_user_db.sql
-      - ./postgres/init_movie_db.sql:/docker-entrypoint-initdb.d/init_movie_db.sql
-      - ./postgres/init_reco_db.sql:/docker-entrypoint-initdb.d/init_reco_db.sql
-      - ./postgres/init_list_db.sql:/docker-entrypoint-initdb.d/init_list_db.sql
+      - ./postgres/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+
+  message-broker:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - my-network
 
 networks:
   my-network:

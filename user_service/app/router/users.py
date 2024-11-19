@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from ..publisher import publish_user_created, publish_user_deleted, publish_user_updated
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..database import db
 from ..models import User
@@ -22,6 +23,9 @@ def register_user():
     db.session.add(new_user)
     db.session.commit()
     user_data = user_schema.dump(new_user)
+
+    publish_user_created(new_user)
+
     return jsonify(user_data), 201
 
 # Route pour connecter un utilisateur
@@ -34,14 +38,14 @@ def login_user():
     return jsonify({"message": "Invalid credentials"}), 401
 
 # Route pour obtenir tous les utilisateurs
-@user_blueprint.route("/users", methods=["GET"])
+@user_blueprint.route("/all", methods=["GET"])
 def get_all_users():
     all_users = User.query.all()
     result = users_schema.dump(all_users)
     return jsonify(result), 200
 
 # Route pour obtenir un utilisateur par ID
-@user_blueprint.route("/users/<int:id>", methods=["GET"])
+@user_blueprint.route("/<int:id>", methods=["GET"])
 def get_single_user(id):
     user = User.query.get(id)
     if not user:
@@ -50,30 +54,36 @@ def get_single_user(id):
     return jsonify(user_data), 200
 
 # Route pour mettre à jour un utilisateur
-@user_blueprint.route("/users/<int:id>", methods=["PUT"])
+@user_blueprint.route("/<int:id>", methods=["PUT"])
 def update_user(id):
     data = request.get_json()
     user = User.query.get(id)
     if not user:
         return jsonify({"message": "User not found"}), 404
-    
+
     user.first_name = data.get("first_name", user.first_name)
     user.last_name = data.get("last_name", user.last_name)
     if "password" in data:
         user.password = generate_password_hash(data["password"])
     user.email = data.get("email", user.email)
-    
+
     db.session.commit()
+
+    publish_user_updated(user)
+
     updated_user = user_schema.dump(user)
     return jsonify(updated_user), 200
 
 # Route pour supprimer un utilisateur
-@user_blueprint.route("/users/<int:id>", methods=["DELETE"])
+@user_blueprint.route("/<int:id>", methods=["DELETE"])
 def delete_user(id):
     user = User.query.get(id)
     if not user:
         return jsonify({"message": "User not found"}), 404
-    
+
     db.session.delete(user)
     db.session.commit()
+
+    publish_user_deleted(id)
+
     return jsonify({"message": "User deleted successfully"}), 200
