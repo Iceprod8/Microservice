@@ -6,3 +6,5 @@ psycopg2-binary
 werkzeug
 python-dotenv
 pika
+flask-jwt-extended
+PyJWT

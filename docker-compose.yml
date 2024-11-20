@@ -1,15 +1,6 @@
 version: "3.8"
 
 services:
-  frontend:
-    build: ./frontend
-    ports:
-      - "3000:80"
-    networks:
-      - my-network
-    depends_on:
-      - gateway
-
   gateway:
     build: ./gateway
     ports:
@@ -21,6 +12,8 @@ services:
       - movie_service
       - list_service
       - reco_service
+    environment:
+      - SECRET_KEY=SECRET_KEY
 
   user_service:
     build: ./user_service
@@ -31,6 +24,7 @@ services:
       - message-broker
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/user_db
+      - SECRET_KEY=SECRET_KEY
 
   movie_service:
     build: ./movie_service

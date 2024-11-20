@@ -1,9 +1,12 @@
-from flask import Blueprint, request, jsonify
+import jwt
+import os
+from flask import Blueprint, request, jsonify, current_app
 from ..publisher import publish_user_created, publish_user_deleted, publish_user_updated
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..database import db
 from ..models import User
 from ..schemas import UserSchema
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 user_blueprint = Blueprint("user", __name__)
 user_schema = UserSchema() 
@@ -23,10 +26,14 @@ def register_user():
     db.session.add(new_user)
     db.session.commit()
     user_data = user_schema.dump(new_user)
-
+    access_token = create_access_token(identity=new_user.id)
+    user_data = user_schema.dump(new_user)
     publish_user_created(new_user)
 
-    return jsonify(user_data), 201
+    return jsonify({
+        "user": user_data,
+        "access_token": access_token
+    }), 201
 
 # Route pour connecter un utilisateur
 @user_blueprint.route("/login", methods=["POST"])
@@ -34,7 +41,11 @@ def login_user():
     data = request.get_json()
     user = User.query.filter_by(email=data["email"]).first()
     if user and check_password_hash(user.password, data["password"]):
-        return jsonify({"message": "Login successful"}), 200
+        access_token = create_access_token(identity=user.id)
+        return jsonify({
+            "message": "Login successful",
+            "access_token": access_token
+        }), 200
     return jsonify({"message": "Invalid credentials"}), 401
 
 # Route pour obtenir tous les utilisateurs
