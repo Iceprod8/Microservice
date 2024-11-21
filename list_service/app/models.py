@@ -12,7 +12,7 @@ class UserList(db.Model):
     id_user = db.Column(db.Integer, nullable=False)
     id_list_type = db.Column(db.Integer, db.ForeignKey("list_type.id", ondelete="CASCADE"), nullable=False)
     id_movie = db.Column(db.Integer, nullable=False)
-    
+
     # Contrainte d'unicité combinée
     __table_args__ = (
         db.UniqueConstraint("id_list_type", "id_movie", "id_user", name="unique_user_list_movie"),

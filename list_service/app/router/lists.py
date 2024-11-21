@@ -4,6 +4,7 @@ from ..database import db
 from ..models import UserList,ListType
 from ..schemas import UserListSchema,ListTypeSchema
 from ..validators import validate_movie, validate_user
+import requests
 
 list_blueprint = Blueprint("lists", __name__)
 user_list_schema = UserListSchema()
@@ -130,3 +131,18 @@ def get_all_list_types():
     list_types = ListType.query.all()
     result = list_type_schema.dump(list_types)
     return jsonify(result), 200
+
+# Route pour obtenir les 50 premiers films d'une liste
+@list_blueprint.route("/feed-list/<int:user_id>/<int:list_id>/recommendations", methods=["GET"])
+def get_user_movies_in_list_reco(user_id, list_id):
+    """
+    Récupérer les films ajoutés par un utilisateur dans une liste spécifique.
+    """
+    movies = UserList.query.filter_by(id_user=user_id, id_list_type=list_id).limit(50).all()
+    if not movies:
+        return jsonify({"message": "No movies found for the user in the specified list"}), 404
+    movie_ids = [movie.id_movie for movie in movies]
+    url = f"http://movie_service:5000/movies/movies-by-ids"
+    response = requests.post(url, json={"ids": movie_ids})
+
+    return response.json()

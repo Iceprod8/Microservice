@@ -99,6 +99,6 @@ def delete_user(id):
 @user_blueprint.route("/logout", methods=["POST"])
 @jwt_required()
 def logout_user():
-    jti = get_jwt()["jti"]  # Récupérer le JWT ID unique
-    revoked_tokens.add(jti)  # Ajouter le token à la liste des tokens révoqués
+    jti = get_jwt()["jti"]
+    revoked_tokens.add(jti)
     return jsonify({"message": "Logout successful"}), 200
