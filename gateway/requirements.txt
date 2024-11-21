@@ -1,2 +1,4 @@
 Flask
 requests
+flask-jwt-extended
+PyJWT

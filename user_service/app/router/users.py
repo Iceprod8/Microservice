@@ -4,10 +4,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from ..database import db
 from ..models import User
 from ..schemas import UserSchema
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt, JWTManager
 
 user_blueprint = Blueprint("user", __name__)
 user_schema = UserSchema() 
 users_schema = UserSchema(many=True)
+
+# Gestion des tokens révoqués
+revoked_tokens = set()
 
 # Route pour enregistrer un utilisateur
 @user_blueprint.route("/register", methods=["POST"])
@@ -23,7 +27,12 @@ def register_user():
     db.session.add(new_user)
     db.session.commit()
     user_data = user_schema.dump(new_user)
-    return jsonify(user_data), 201
+    access_token = create_access_token(identity=str(user_data.uid))
+
+    return jsonify({
+        "user": user_data,
+        "access_token": access_token
+    }), 201
 
 # Route pour connecter un utilisateur
 @user_blueprint.route("/login", methods=["POST"])
@@ -31,7 +40,11 @@ def login_user():
     data = request.get_json()
     user = User.query.filter_by(email=data["email"]).first()
     if user and check_password_hash(user.password, data["password"]):
-        return jsonify({"message": "Login successful"}), 200
+        access_token = create_access_token(identity=str(user.uid))
+        return jsonify({
+            "message": "Login successful",
+            "access_token": access_token
+        }), 200
     return jsonify({"message": "Invalid credentials"}), 401
 
 # Route pour obtenir tous les utilisateurs
@@ -80,7 +93,12 @@ def delete_user(id):
 
     db.session.delete(user)
     db.session.commit()
-
     publish_user_deleted(id)
-
     return jsonify({"message": "User deleted successfully"}), 200
+
+@user_blueprint.route("/logout", methods=["POST"])
+@jwt_required()
+def logout_user():
+    jti = get_jwt()["jti"]  # Récupérer le JWT ID unique
+    revoked_tokens.add(jti)  # Ajouter le token à la liste des tokens révoqués
+    return jsonify({"message": "Logout successful"}), 200
