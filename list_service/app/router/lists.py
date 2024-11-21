@@ -89,3 +89,12 @@ def get_all_list_types():
     list_types = ListType.query.all()
     result = list_type_schema.dump(list_types)
     return jsonify(result), 200
+
+# Route pour obtenir les 50 premiers films d'une liste
+@list_blueprint.route("/<int:id_list>/movies/recommendations", methods=["GET"])
+def get_list_movies_recommendation(id_list):
+    movies = UserList.query.filter_by(id_list_type=id_list).limit(50).all()
+    if not movies:
+        return jsonify({"message": "list not found"}), 404
+    result = UserListSchema.dump(movies)
+    return jsonify(result), 200

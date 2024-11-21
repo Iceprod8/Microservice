@@ -1,6 +1,10 @@
 from flask import Flask
 from .database import init_db
 from .router.recommendations import recommendations_blueprint
+import sys
+
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
 
 def create_app():
     app = Flask(__name__)
