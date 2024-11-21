@@ -17,7 +17,6 @@ def get_recommendations(user_id):
         recommendations = generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen)
 
         publish_recommendation_generated(user_id, recommendations)
-
         return jsonify(recommendations), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -83,4 +82,8 @@ def generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rati
 
     #melanger la liste pour en selectionner aleatoirement 10
     random.shuffle(recommendations)
-    return recommendations[:10]
+    recommendations = recommendations[:10]
+    db.session.add(recommendations)
+    db.session.commit()
+
+    return recommendations

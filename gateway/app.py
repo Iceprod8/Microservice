@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 import requests
 import os
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
@@ -35,27 +35,24 @@ def forward_request(service_url, add_user_header=False):
     )
     return (response.content, response.status_code, response.headers.items())
 
-# Redirige /users vers user_service
+# Routes vers les différents services
 @app.route('/users', defaults={'path': ''}, methods=["GET", "POST", "PUT", "DELETE"])
 @app.route('/users/<path:path>', methods=["GET", "POST", "PUT", "DELETE"])
 def user_service(path):
     return forward_request(services["user_service"])
 
-# Redirige /movies vers movie_service
 @app.route('/movies', defaults={'path': ''}, methods=["GET", "POST", "PUT", "DELETE"])
 @app.route('/movies/<path:path>', methods=["GET", "POST", "PUT", "DELETE"])
 @jwt_required()
 def movie_service(path=""):
     return forward_request(services["movie_service"], add_user_header=True)
 
-# Redirige /reco vers reco_service
 @app.route('/reco', defaults={'path': ''}, methods=["GET", "POST", "PUT", "DELETE"])
 @app.route('/reco/<path:path>', methods=["GET", "POST", "PUT", "DELETE"])
 @jwt_required()
 def reco_service(path=""):
     return forward_request(services["reco_service"], add_user_header=True)
 
-# Redirige /lists vers list_service
 @app.route('/lists', defaults={'path': ''}, methods=["GET", "POST", "PUT", "DELETE"])
 @app.route('/lists/<path:path>', methods=["GET", "POST", "PUT", "DELETE"])
 @jwt_required()

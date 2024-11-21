@@ -1,18 +1,18 @@
-import jwt
-import os
-from flask import Blueprint, request, jsonify, current_app
-from ..publisher import publish_user_created, publish_user_deleted, publish_user_updated
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt, JWTManager
+from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..database import db
 from ..models import User
 from ..schemas import UserSchema
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from ..publisher import publish_user_created, publish_user_deleted, publish_user_updated
 
 user_blueprint = Blueprint("user", __name__)
 user_schema = UserSchema() 
 users_schema = UserSchema(many=True)
 
-# Route pour enregistrer un utilisateur
+# Gestion des tokens révoqués
+revoked_tokens = set()
+
 @user_blueprint.route("/register", methods=["POST"])
 def register_user():
     data = request.get_json()
@@ -48,53 +48,20 @@ def login_user():
         }), 200
     return jsonify({"message": "Invalid credentials"}), 401
 
-# Route pour obtenir tous les utilisateurs
-@user_blueprint.route("/all", methods=["GET"])
-def get_all_users():
-    all_users = User.query.all()
-    result = users_schema.dump(all_users)
-    return jsonify(result), 200
+# Route pour déconnexion
+@user_blueprint.route("/logout", methods=["POST"])
+@jwt_required()
+def logout_user():
+    jti = get_jwt()["jti"]  # Récupérer le JWT ID unique
+    revoked_tokens.add(jti)  # Ajouter le token à la liste des tokens révoqués
+    return jsonify({"message": "Logout successful"}), 200
 
-# Route pour obtenir un utilisateur par ID
-@user_blueprint.route("/<int:id>", methods=["GET"])
-def get_single_user(id):
-    user = User.query.get(id)
-    if not user:
-        return jsonify({"message": "User not found"}), 404
-    user_data = user_schema.dump(user)
-    return jsonify(user_data), 200
+# Gestionnaire global pour vérifier si le token est révoqué
+def check_if_token_in_blocklist(jwt_header, jwt_payload):
+    jti = jwt_payload["jti"]
+    return jti in revoked_tokens
 
-# Route pour mettre à jour un utilisateur
-@user_blueprint.route("/<int:id>", methods=["PUT"])
-def update_user(id):
-    data = request.get_json()
-    user = User.query.get(id)
-    if not user:
-        return jsonify({"message": "User not found"}), 404
-
-    user.first_name = data.get("first_name", user.first_name)
-    user.last_name = data.get("last_name", user.last_name)
-    if "password" in data:
-        user.password = generate_password_hash(data["password"])
-    user.email = data.get("email", user.email)
-
-    db.session.commit()
-
-    publish_user_updated(user)
-
-    updated_user = user_schema.dump(user)
-    return jsonify(updated_user), 200
-
-# Route pour supprimer un utilisateur
-@user_blueprint.route("/<int:id>", methods=["DELETE"])
-def delete_user(id):
-    user = User.query.get(id)
-    if not user:
-        return jsonify({"message": "User not found"}), 404
-
-    db.session.delete(user)
-    db.session.commit()
-
-    publish_user_deleted(id)
-
-    return jsonify({"message": "User deleted successfully"}), 200
+# Ajouter à l'application principale
+def configure_jwt(app):
+    jwt = JWTManager(app)
+    jwt.token_in_blocklist_loader(check_if_token_in_blocklist)
