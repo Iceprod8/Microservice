@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date,datetime,timezone
 from .database import db
 
 class Movie(db.Model):
@@ -12,9 +12,13 @@ class Movie(db.Model):
     synopsis = db.Column(db.Text)
     cast = db.Column(db.Text)
     rating = db.Column(db.Float, default=0)
-
     genre = db.relationship("Genre", back_populates="movies")
     ratings = db.relationship("Rating", back_populates="movie", cascade="all, delete-orphan")
+    created_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
 
     def __repr__(self):
         return f"<Movie {self.title}>"
