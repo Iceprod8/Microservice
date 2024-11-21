@@ -33,20 +33,21 @@ def add_movie():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-@movie_blueprint.route("/all_recent", methods=["GET"])
-def get_recent_movies():
-    try:
-        # Récupérer les 15 films les plus récents triés par date de création
-        movies = Movie.query.order_by(Movie.created_at.desc()).limit(15).all()
-        return jsonify(movies_schema.dump(movies))
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 @movie_blueprint.route("/all_recent_release", methods=["GET"])
 def get_recent_release_movies():
     try:
         # Récupérer les 15 films les plus récents triés par date de réalisation
         movies = Movie.query.order_by(Movie.release_date.desc()).limit(15).all()
+        return jsonify(movies_schema.dump(movies))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@movie_blueprint.route("/popular", methods=["GET"])
+def get_popular_movie():
+    try:
+        # Récupérer les 15 films les plus récents triés par date de réalisation
+        movies = Movie.query.order_by(Movie.rating.desc()).limit(50).all()
         return jsonify(movies_schema.dump(movies))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -68,6 +69,15 @@ def get_movie(id):
             return jsonify(movie_schema.dump(movie))
         else:
             return jsonify({"error": "Movie not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@movie_blueprint.route("/movies-by-ids", methods=["POST"])
+def get_movies_by_ids():
+    try:
+        ids = request.json.get("ids", [])
+        movies = Movie.query.filter(Movie.id.in_(ids)).all()
+        return jsonify(movies_schema.dump(movies))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -112,16 +122,6 @@ def delete_movie(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@movie_blueprint.route("/popular", methods=["GET"])
-def get_popular_movie():
-    try:
-        movie = Movie.query.order_by(desc(Movie.rating)).limit(50).all()
-        if movie:
-            return jsonify(movie_schema.dump(movie))
-        else:
-            return jsonify({"error": "Movie not found"}), 404
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
     
 @movie_blueprint.route("/search", methods=["GET"])
 def search_movie_by_title():

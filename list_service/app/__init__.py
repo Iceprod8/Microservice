@@ -2,6 +2,10 @@ from flask import Flask
 from .database import init_db, db
 from .models import ListType
 from .router.lists import list_blueprint
+import sys
+
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
 
 def create_app():
     app = Flask(__name__)

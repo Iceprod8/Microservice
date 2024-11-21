@@ -6,6 +6,10 @@ from .router.genres import genre_blueprint
 from .models import Genre
 import os
 import json
+import sys
+
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
 
 def create_app():
     app = Flask(__name__)
