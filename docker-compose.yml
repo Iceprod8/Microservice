@@ -12,6 +12,8 @@ services:
       - movie_service
       - list_service
       - reco_service
+    environment:
+      - SECRET_KEY=SECRET_KEY
 
   user_service:
     build: ./user_service
@@ -21,6 +23,7 @@ services:
       - postgres
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/user_db
+      - SECRET_KEY=SECRET_KEY
 
   movie_service:
     build: ./movie_service

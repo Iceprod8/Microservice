@@ -79,4 +79,7 @@ def generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rati
 
     #melanger la liste pour en selectionner aleatoirement 10
     random.shuffle(recommendations)
-    return recommendations[:10]
+    recommendations = recommendations[:10]
+    db.session.add(recommendations)
+    db.session.commit()
+    return recommendations
