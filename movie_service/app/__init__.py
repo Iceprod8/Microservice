@@ -1,4 +1,5 @@
 from flask import Flask
+from .publisher import start_rabbitmq_consumers
 from .database import db, init_db
 from .router.movies import movie_blueprint
 from .router.ratings import rating_blueprint
@@ -10,6 +11,7 @@ import sys
 
 sys.stdout.reconfigure(line_buffering=True)
 sys.stderr.reconfigure(line_buffering=True)
+
 
 def create_app():
     app = Flask(__name__)
@@ -24,7 +26,8 @@ def create_app():
     with app.app_context():
         db.create_all()
         populate_default_genres()
-
+        start_rabbitmq_consumers()
+    
     return app
 
 def populate_default_genres():

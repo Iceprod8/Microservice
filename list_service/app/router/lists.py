@@ -1,4 +1,5 @@
 from flask import Blueprint, request,jsonify
+from ..publisher import publish_list_deleted, publish_movie_removed_from_list, publish_movie_added_to_list
 from ..database import db
 from ..models import UserList,ListType
 from ..schemas import UserListSchema,ListTypeSchema
@@ -41,6 +42,8 @@ def add_movie_list():
 
     db.session.add(new_list)
     db.session.commit()
+
+    publish_movie_added_to_list(new_list.id_user, new_list.id_movie, new_list.uid)
 
     user_list_data = user_list_schema.dump(new_list)
     return jsonify(user_list_data), 201
@@ -97,8 +100,12 @@ def delete_movie_from_list(list_id, id_movie):
     if not movie:
         return jsonify({"message": "Movie not found in list"}), 404
 
+    user_id = movie.id_user
     db.session.delete(movie)
     db.session.commit()
+
+    publish_movie_removed_from_list(user_id, id_movie, list_id)
+
     return jsonify({"message": "Movie removed from list"}), 200
 
 # Route pour supprimer une liste d'un utilisateur
@@ -110,7 +117,9 @@ def delete_list(user_id, list_id):
 
     db.session.delete(user_list)
     db.session.commit()
-
+    
+    publish_list_deleted(user_id, list_id)
+    
     return jsonify({"message": "List deleted successfully"}), 200
 
 # Schéma pour sérialiser les types de liste

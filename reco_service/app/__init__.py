@@ -1,3 +1,5 @@
+from .publisher import start_recommendation_consumers
+from .database import db
 from flask import Flask
 from .database import init_db, db
 from .router.recommendations import recommendations_blueprint
@@ -15,5 +17,9 @@ def create_app():
         db.create_all()
 
     app.register_blueprint(recommendations_blueprint, url_prefix="/reco")
+
+    with app.app_context():
+        db.create_all()
+        start_recommendation_consumers(app)
 
     return app
