@@ -18,8 +18,8 @@ def publish_event(event_name, message):
     try:
         connection = pika.BlockingConnection(pika.ConnectionParameters('message-broker'))
         channel = connection.channel()
-        channel.queue_declare(queue=event_name)
-        channel.basic_publish(exchange='', routing_key=event_name, body=json.dumps(message))
+        channel.exchange_declare(exchange=event_name, exchange_type='fanout')
+        channel.basic_publish(exchange=event_name, routing_key='', body=json.dumps(message))
         connection.close()
     except Exception as e:
         print(f"[!] Failed to publish event: {event_name}. Error: {e}")

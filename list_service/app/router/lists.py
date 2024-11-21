@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from ..publisher import publish_list_deleted, publish_movie_removed_from_list
+from ..publisher import publish_list_deleted, publish_movie_removed_from_list, publish_movie_added_to_list
 from ..database import db
 from ..models import UserList,ListType
 from ..schemas import UserListSchema,ListTypeSchema
@@ -44,6 +44,8 @@ def add_movie_list(id_user, id_movie, id_list):
 
     db.session.add(new_list)
     db.session.commit()
+
+    publish_movie_added_to_list(new_list.id_user, new_list.id_movie, new_list.uid)
 
     user_list_data = user_list_schema.dump(new_list)
     return jsonify(user_list_data), 201

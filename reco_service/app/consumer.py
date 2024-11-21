@@ -4,15 +4,22 @@ from .database import db
 import pika
 import json
 
-def start_consumer(queue_name, callback):
+def start_consumer(exchange_name, callback):
     """
-    Initialise un consommateur RabbitMQ pour écouter les messages d'une file d'attente spécifique.
+    Initialise un consommateur RabbitMQ pour une queue liée à un exchange de type fanout.
     """
-    connection = pika.BlockingConnection(pika.ConnectionParameters('message-broker'))
-    channel = connection.channel()
-    channel.queue_declare(queue=queue_name)
-    channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
-    channel.start_consuming()
+    try:
+        connection = pika.BlockingConnection(pika.ConnectionParameters('message-broker'))
+        channel = connection.channel()
+        channel.exchange_declare(exchange=exchange_name, exchange_type='fanout')
+        result = channel.queue_declare(queue='', exclusive=True)
+        queue_name = result.method.queue
+        channel.queue_bind(exchange=exchange_name, queue=queue_name)
+        channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
+        print(f"Consuming from exchange '{exchange_name}' with unique queue '{queue_name}'")
+        channel.start_consuming()
+    except Exception as e:
+        print(f"Erreur dans start_consumer : {e}")
 
 def movie_deleted_callback(app, ch, method, properties, body):
     """
@@ -43,7 +50,6 @@ def movie_added_callback(app, ch, method, properties, body):
                 print(f"[x] Movie {movie_id} added. Recalculating recommendations for all users.")
                 user_ids = db.session.query(Recommendation.id_user).distinct().all()
                 user_ids = [user_id[0] for user_id in user_ids]
-
                 for user_id in user_ids:
                     movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen = get_all_datas(user_id)
                     new_recommendations = generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen)
@@ -65,11 +71,10 @@ def movie_updated_callback(app, ch, method, properties, body):
     try:
         message = json.loads(body)
         movie_id = message.get("movie_id")
-        new_genre = message.get("genre")
 
-        if movie_id and new_genre:
+        if movie_id:
             with app.app_context():
-                print(f"[x] Movie {movie_id} updated to genre {new_genre}. Recalculating recommendations for all users.")
+                print(f"[x] Movie {movie_id} updated. Recalculating recommendations for all users.")
                 user_ids = db.session.query(Recommendation.id_user).filter_by(id_movie=movie_id).distinct().all()
                 user_ids = [user_id[0] for user_id in user_ids]
 
@@ -132,9 +137,8 @@ def list_updated_callback(app, ch, method, properties, body):
     try:
         message = json.loads(body)
         user_id = message.get("user_id")
-        action = message.get("action")
 
-        if user_id and action:
+        if user_id:
             with app.app_context():
                 movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen = get_all_datas(user_id)
                 new_recommendations = generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen)
