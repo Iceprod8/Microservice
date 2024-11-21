@@ -14,7 +14,7 @@ def add_movie():
     errors = movie_schema.validate(data)
     if errors:
         return jsonify({"errors": errors}), 400
-    
+
     try:
         new_movie = Movie(
             title=data['title'],
@@ -31,6 +31,24 @@ def add_movie():
         return jsonify({"message": "Movie added successfully!", "movie": movie_schema.dump(new_movie)}), 201
     except Exception as e:
         db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+@movie_blueprint.route("/all_recent", methods=["GET"])
+def get_recent_movies():
+    try:
+        # Récupérer les 15 films les plus récents triés par date de création
+        movies = Movie.query.order_by(Movie.created_at.desc()).limit(15).all()
+        return jsonify(movies_schema.dump(movies))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@movie_blueprint.route("/all_recent_release", methods=["GET"])
+def get_recent_release_movies():
+    try:
+        # Récupérer les 15 films les plus récents triés par date de réalisation
+        movies = Movie.query.order_by(Movie.release_date.desc()).limit(15).all()
+        return jsonify(movies_schema.dump(movies))
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
@@ -59,26 +77,28 @@ def update_movie(id):
     movie = Movie.query.get(id)
     if not movie:
         return jsonify({"error": "Movie not found"}), 404
-    
+
     errors = movie_schema.validate(data, partial=True)
     if errors:
         return jsonify({"errors": errors}), 400
-    
+
     try:
         movie.title = data.get('title', movie.title)
-        movie.genre = data.get('genre', movie.genre)
+        movie.genre_id = data.get('genre_id', movie.genre_id)
         movie.director = data.get('director', movie.director)
         movie.release_date = data.get('release_date', movie.release_date)
         movie.synopsis = data.get('synopsis', movie.synopsis)
         movie.duration = data.get('duration', movie.duration)
         movie.cast = data.get('cast', movie.cast)
         movie.rating = data.get('rating', movie.rating)
+
         db.session.commit()
+
         return jsonify({"message": "Movie updated successfully!", "movie": movie_schema.dump(movie)})
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
-
+    
 @movie_blueprint.route("/<int:id>", methods=["DELETE"])
 def delete_movie(id):
     try:
@@ -100,5 +120,23 @@ def get_popular_movie():
             return jsonify(movie_schema.dump(movie))
         else:
             return jsonify({"error": "Movie not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@movie_blueprint.route("/search", methods=["GET"])
+def search_movie_by_title():
+    try:
+        # Obtenir le titre depuis les paramètres de requête
+        title = request.args.get('title', '').strip()
+        if not title:
+            return jsonify({"error": "Title parameter is required"}), 400
+
+        # Rechercher les films avec un titre contenant la chaîne (insensible à la casse)
+        movies = Movie.query.filter(Movie.title.ilike(f"%{title}%")).all()
+
+        if movies:
+            return jsonify(movies_schema.dump(movies))
+        else:
+            return jsonify({"message": "No movies found with the given title"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
