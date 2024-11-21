@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from ..publisher import publish_user_created, publish_user_deleted, publish_user_updated
+from ..publisher import publish_user_deleted, publish_user_updated
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..database import db
 from ..models import User
@@ -23,9 +23,6 @@ def register_user():
     db.session.add(new_user)
     db.session.commit()
     user_data = user_schema.dump(new_user)
-
-    publish_user_created(new_user)
-
     return jsonify(user_data), 201
 
 # Route pour connecter un utilisateur

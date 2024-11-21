@@ -1,6 +1,5 @@
 import requests
 from flask import Blueprint, jsonify
-from ..publisher import publish_recommendation_generated
 from ..database import db
 from ..models import Recommendation
 from ..schemas import RecommendationSchema
@@ -15,9 +14,6 @@ def get_recommendations(user_id):
     try:
         movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen = get_all_datas(user_id)
         recommendations = generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen)
-
-        publish_recommendation_generated(user_id, recommendations)
-
         return jsonify(recommendations), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -51,7 +47,7 @@ def getPreferredGenres():
     return []
 
 def getAlreadySeenMovies():
-    url = f"http://list_service:5000/lists/3/movies" #remplacer id_list par l'id de la liste Deja vu dans la table list
+    url = f"http://list_service:5000/lists/3/movies"
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()

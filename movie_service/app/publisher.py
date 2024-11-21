@@ -1,5 +1,15 @@
+from flask import current_app
+from threading import Thread
 import pika
 import json
+from .consumer import start_consumer, user_deleted_callback
+
+def start_rabbitmq_consumers():
+    """
+    Démarre tous les consommateurs RabbitMQ nécessaires.
+    """
+    app = current_app._get_current_object()
+    Thread(target=start_consumer, args=("UserDeleted", lambda ch, method, properties, body: user_deleted_callback(app, ch, method, properties, body))).start()
 
 def publish_event(event_name, message):
     """
@@ -10,7 +20,6 @@ def publish_event(event_name, message):
         channel = connection.channel()
         channel.queue_declare(queue=event_name)
         channel.basic_publish(exchange='', routing_key=event_name, body=json.dumps(message))
-        print(f"[x] Event published: {event_name} with message: {message}")
         connection.close()
     except Exception as e:
         print(f"[!] Failed to publish event: {event_name}. Error: {e}")
@@ -21,7 +30,7 @@ def publish_movie_created(movie):
     """
     event_name = "MovieCreated"
     message = {
-        "id": movie.id,
+        "movie_id": movie.id,
         "title": movie.title,
         "genre_id": movie.genre_id,
         "director": movie.director,
@@ -37,7 +46,7 @@ def publish_movie_updated(movie):
     """
     event_name = "MovieUpdated"
     message = {
-        "id": movie.id,
+        "movie_id": movie.id,
         "title": movie.title,
         "genre_id": movie.genre_id,
         "director": movie.director,
@@ -51,6 +60,9 @@ def publish_movie_deleted(movie_id):
     """
     Publie un événement 'MovieDeleted' avec l'identifiant du film supprimé.
     """
-    event_name = "MovieDeleted"
-    message = {"id": movie_id}
-    publish_event(event_name, message)
+    try:
+        event_name = "MovieDeleted"
+        message = {"movie_id": movie_id}
+        publish_event(event_name, message)
+    except Exception as e:
+        print(f"[!] Error in publish_movie_deleted: {e}")
