@@ -1,5 +1,6 @@
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt, JWTManager
 from flask import Blueprint, request, jsonify
+from ..publisher import publish_user_deleted, publish_user_updated
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..database import db
 from ..models import User

@@ -1,9 +1,12 @@
 from flask import Flask
-
 from .publisher import start_rabbitmq_consumers
 from .database import init_db, db
 from .models import ListType
 from .router.lists import list_blueprint
+import sys
+
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
 
 def create_app():
     app = Flask(__name__)
@@ -19,9 +22,8 @@ def create_app():
     with app.app_context():
         db.create_all()
         initialize_list_types()
+        start_rabbitmq_consumers()
 
-    start_rabbitmq_consumers()
-    
     return app
 
 def initialize_list_types():

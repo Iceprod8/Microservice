@@ -2,6 +2,10 @@ from flask import Flask
 from .database import init_db, db
 from .router.users import user_blueprint
 from .router.preferences import preferences_blueprint
+import sys
+
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
 import os
 
 def create_app():

@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify
 from ..database import db
 from ..models import Rating, Movie
 from ..schemas import RatingSchema
-from ..publisher import publish_event
 
 rating_blueprint = Blueprint("ratings", __name__)
 rating_schema = RatingSchema()
@@ -10,6 +9,9 @@ ratings_schema = RatingSchema(many=True)
 
 @rating_blueprint.route("/<int:id>/rate", methods=["POST"])
 def rate_movie(id):
+    """
+    Permet à un utilisateur d'évaluer un film. La note est entre 1 et 5.
+    """
     data = request.get_json()
     user_id = data.get("user_id")
     score = data.get("score")
@@ -31,38 +33,25 @@ def rate_movie(id):
         db.session.add(new_rating)
 
     db.session.commit()
-    update_movie_rating(movie)
-    
-    publish_event("RatingCreated", {
-        "movie_id": movie.id,
-        "user_id": user_id,
-        "score": score
-    })
+    update_movie_rating(id)
 
     return jsonify({"message": "Rating submitted successfully!"})
 
-
-def update_movie_rating(movie):
+def update_movie_rating(movie_id):
     """
-    Met à jour la note moyenne d'un film et publie un événement si la note est modifiée.
+    Met à jour la note moyenne d'un film en fonction des évaluations des utilisateurs.
     """
-    ratings = Rating.query.filter_by(movie_id=movie.id).all()
+    ratings = Rating.query.filter_by(movie_id=movie_id).all()
     if ratings:
-        average_rating = sum(rating.score for rating in ratings) / len(ratings)
+        total_score = sum(rating.score for rating in ratings)
+        average_rating = total_score / len(ratings)
         new_rating = round(min(average_rating, 5), 2)
     else:
         new_rating = 0
 
-    if movie.rating != new_rating:
+    movie = Movie.query.get(movie_id)
+    if movie:
         movie.rating = new_rating
-        db.session.commit()
-
-        publish_event("MovieRatingUpdated", {
-            "movie_id": movie.id,
-            "title": movie.title,
-            "new_rating": movie.rating
-        })
-    else:
         db.session.commit()
 
 @rating_blueprint.route("/users/<int:user_id>/rated_movies", methods=["GET"])
