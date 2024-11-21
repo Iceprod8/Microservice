@@ -13,7 +13,6 @@ class Movie(db.Model):
     cast = db.Column(db.Text)
     rating = db.Column(db.Float, default=0)
     genre = db.relationship("Genre", back_populates="movies")
-    ratings = db.relationship("Rating", back_populates="movie", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Movie {self.title}>"
@@ -34,8 +33,6 @@ class Rating(db.Model):
     movie_id = db.Column(db.Integer, db.ForeignKey('movies.id'), nullable=False)
     user_id = db.Column(db.Integer, nullable=False)
     score = db.Column(db.Float, nullable=False)
-
-    movie = db.relationship("Movie", back_populates="ratings")
 
     def __repr__(self):
         return f"<Rating Movie ID: {self.movie_id}, Score: {self.score}>"

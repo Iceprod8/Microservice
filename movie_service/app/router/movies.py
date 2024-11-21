@@ -126,13 +126,15 @@ def delete_movie(id):
         return jsonify({"error": str(e)}), 500
 
 @movie_blueprint.route("/popular", methods=["GET"])
-def get_popular_movie():
+def get_popular_movies():
     try:
-        # Récupérer les 15 films les plus récents triés par date de réalisation
-        movies = Movie.query.order_by(Movie.rating.desc()).limit(50).all()
-        return jsonify(movies_schema.dump(movies))
+        movies = Movie.query.order_by(desc(Movie.rating)).limit(50).all()
+        if not movies:
+            return jsonify({"message": "No popular movies found"}), 404
+        return jsonify(movies_schema.dump(movies)), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
     
 @movie_blueprint.route("/search", methods=["GET"])
 def search_movie_by_title():

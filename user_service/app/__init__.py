@@ -1,4 +1,5 @@
 from flask import Flask
+from .publisher import start_rabbitmq_consumers
 from .database import init_db, db
 from .router.users import user_blueprint
 from .router.preferences import preferences_blueprint
@@ -38,5 +39,6 @@ def create_app():
 
     with app.app_context():
         db.create_all()
+        start_rabbitmq_consumers()
         
     return app

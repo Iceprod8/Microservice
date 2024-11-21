@@ -1,5 +1,15 @@
 import pika
 import json
+from flask import current_app
+from threading import Thread
+from .consumer import start_consumer, validate_user_callback
+
+def start_rabbitmq_consumers():
+    """
+    Démarre tous les consommateurs RabbitMQ nécessaires.
+    """
+    app = current_app._get_current_object()
+    Thread(target=start_consumer, args=("validate_user_queue", lambda ch, method, properties, body: validate_user_callback(app, ch, method, properties, body))).start()
 
 def publish_event(event_name, message):
     """
