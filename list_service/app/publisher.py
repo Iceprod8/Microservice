@@ -2,7 +2,7 @@ from flask import current_app
 import pika
 import json
 from threading import Thread
-from .consumer import movie_updated_callback, start_consumer, user_deleted_callback, user_updated_callback, movie_deleted_callback
+from .consumer import start_consumer, user_deleted_callback, movie_deleted_callback
 
 def start_rabbitmq_consumers():
     """
@@ -10,10 +10,7 @@ def start_rabbitmq_consumers():
     """
     app = current_app._get_current_object()
     Thread(target=start_consumer, args=("MovieDeleted", lambda ch, method, properties, body: movie_deleted_callback(app, ch, method, properties, body))).start()
-    Thread(target=start_consumer, args=("MovieUpdated", lambda ch, method, properties, body: movie_updated_callback(app, ch, method, properties, body))).start()
     Thread(target=start_consumer, args=("UserDeleted", lambda ch, method, properties, body: user_deleted_callback(app, ch, method, properties, body))).start()
-    Thread(target=start_consumer, args=("UserUpdated", lambda ch, method, properties, body: user_updated_callback(app, ch, method, properties, body))).start()
-
 
 def publish_event(event_name, message):
     """

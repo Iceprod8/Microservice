@@ -14,11 +14,6 @@ class Movie(db.Model):
     rating = db.Column(db.Float, default=0)
     genre = db.relationship("Genre", back_populates="movies")
     ratings = db.relationship("Rating", back_populates="movie", cascade="all, delete-orphan")
-    created_at = db.Column(
-        db.DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        nullable=False
-    )
 
     def __repr__(self):
         return f"<Movie {self.title}>"

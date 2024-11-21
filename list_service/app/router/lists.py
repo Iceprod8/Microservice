@@ -35,12 +35,8 @@ def add_movie_list():
     # Créer une nouvelle entrée dans la liste
     new_list = UserList(
         id_user=data['id_user'],
-        first_name=data['first_name'],
-        last_name=data['last_name'],
-        email=data['email'],
         id_list_type=data['id_list_type'],
         id_movie=data['id_movie'],
-        name_movie=data['name_movie']
     )
 
     db.session.add(new_list)

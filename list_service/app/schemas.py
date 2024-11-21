@@ -8,9 +8,5 @@ class ListTypeSchema(Schema):
 class UserListSchema(Schema):
     uid = fields.Int()
     id_user = fields.Int(required=True)  # Identifiant de l'utilisateur, récupéré via l'API du service d'utilisateurs
-    first_name = fields.Str(required=True)  # récupéré via l'API du service d'utilisateurs
-    last_name = fields.Str(required=True)  # récupéré via l'API du service d'utilisateurs
-    email = fields.Email(required=True)  # récupéré via l'API du service d'utilisateurs
     id_list_type = fields.Int(required=True)
     id_movie = fields.Int(required=True)  # Identifiant du film, récupéré via l'API du service de films
-    name_movie = fields.Str(required=True)  # Nom du film

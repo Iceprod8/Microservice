@@ -27,7 +27,7 @@ def register_user():
     db.session.add(new_user)
     db.session.commit()
     user_data = user_schema.dump(new_user)
-    access_token = create_access_token(identity=str(user_data.uid))
+    access_token = create_access_token(identity=str(new_user.uid))
 
     return jsonify({
         "user": user_data,
