@@ -47,7 +47,7 @@ def getPreferredGenres():
     return []
 
 def getAlreadySeenMovies():
-    url = f"http://list_service:5000/lists/3/movies" #remplacer id_list par l'id de la liste Deja vu dans la table list
+    url = f"http://list_service:5000/lists/3/movies"
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()

@@ -1,8 +1,9 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy import desc
 from ..database import db
-from ..models import Movie
+from ..models import Movie, Rating
 from ..schemas import MovieSchema
+from ..publisher import publish_movie_created, publish_movie_deleted, publish_movie_updated
 
 movie_blueprint = Blueprint("movies", __name__)
 movie_schema = MovieSchema()
@@ -23,11 +24,13 @@ def add_movie():
             release_date=data.get('release_date'),
             synopsis=data.get('synopsis'),
             duration=data.get('duration'),
-            cast=data.get('cast'),
-            rating=data.get('rating', 0)
+            cast=data.get('cast')
         )
         db.session.add(new_movie)
         db.session.commit()
+
+        publish_movie_created(new_movie)
+
         return jsonify({"message": "Movie added successfully!", "movie": movie_schema.dump(new_movie)}), 201
     except Exception as e:
         db.session.rollback()
@@ -50,7 +53,6 @@ def get_recent_release_movies():
         return jsonify(movies_schema.dump(movies))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 @movie_blueprint.route("/all", methods=["GET"])
 def get_movies():
@@ -90,10 +92,10 @@ def update_movie(id):
         movie.synopsis = data.get('synopsis', movie.synopsis)
         movie.duration = data.get('duration', movie.duration)
         movie.cast = data.get('cast', movie.cast)
-        movie.rating = data.get('rating', movie.rating)
-
         db.session.commit()
-
+        
+        publish_movie_updated(movie)
+        
         return jsonify({"message": "Movie updated successfully!", "movie": movie_schema.dump(movie)})
     except Exception as e:
         db.session.rollback()
@@ -104,13 +106,23 @@ def delete_movie(id):
     try:
         movie = Movie.query.get(id)
         if movie:
+            ratings = Rating.query.filter_by(movie_id=id).all()
+            for rating in ratings:
+                db.session.delete(rating)
+            db.session.commit()
+
             db.session.delete(movie)
             db.session.commit()
-            return jsonify({"message": "Movie deleted successfully!"})
+
+            publish_movie_deleted(id)
+
+            return jsonify({"message": "Movie and associated ratings deleted successfully!"})
         else:
             return jsonify({"error": "Movie not found"}), 404
     except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
 
 @movie_blueprint.route("/popular", methods=["GET"])
 def get_popular_movie():

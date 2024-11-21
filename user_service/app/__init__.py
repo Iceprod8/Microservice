@@ -4,6 +4,10 @@ from .router.users import user_blueprint
 from .router.preferences import preferences_blueprint
 from flask_jwt_extended import JWTManager
 import os
+import sys
+
+sys.stdout.reconfigure(line_buffering=True)
+sys.stderr.reconfigure(line_buffering=True)
 
 revoked_tokens = set()
 

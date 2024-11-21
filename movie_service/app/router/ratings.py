@@ -9,6 +9,9 @@ ratings_schema = RatingSchema(many=True)
 
 @rating_blueprint.route("/<int:id>/rate", methods=["POST"])
 def rate_movie(id):
+    """
+    Permet à un utilisateur d'évaluer un film. La note est entre 1 et 5.
+    """
     data = request.get_json()
     user_id = data.get("user_id")
     score = data.get("score")
@@ -30,17 +33,26 @@ def rate_movie(id):
         db.session.add(new_rating)
 
     db.session.commit()
-    update_movie_rating(movie)
+    update_movie_rating(id)
+
     return jsonify({"message": "Rating submitted successfully!"})
 
-def update_movie_rating(movie):
-    ratings = Rating.query.filter_by(movie_id=movie.id).all()
+def update_movie_rating(movie_id):
+    """
+    Met à jour la note moyenne d'un film en fonction des évaluations des utilisateurs.
+    """
+    ratings = Rating.query.filter_by(movie_id=movie_id).all()
     if ratings:
-        average_rating = sum(rating.score for rating in ratings) / len(ratings)
-        movie.rating = round(min(average_rating, 5), 2)
+        total_score = sum(rating.score for rating in ratings)
+        average_rating = total_score / len(ratings)
+        new_rating = round(min(average_rating, 5), 2)
     else:
-        movie.rating = 0
-    db.session.commit()
+        new_rating = 0
+
+    movie = Movie.query.get(movie_id)
+    if movie:
+        movie.rating = new_rating
+        db.session.commit()
 
 @rating_blueprint.route("/users/<int:user_id>/rated_movies", methods=["GET"])
 def get_rated_movies_by_user(user_id):
