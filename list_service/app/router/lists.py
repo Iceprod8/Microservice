@@ -37,7 +37,7 @@ def add_movie_list():
     new_list = UserList(
         id_user=data['id_user'],
         id_list_type=data['id_list_type'],
-        id_movie=data['id_movie']
+        id_movie=data['id_movie'],
     )
 
     db.session.add(new_list)
