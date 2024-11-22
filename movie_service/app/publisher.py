@@ -1,15 +1,18 @@
+from functools import partial
 from flask import current_app
 from threading import Thread
 import pika
 import json
-from .consumer import start_consumer, user_deleted_callback
+from .consumer import start_consumer, user_deleted_callback, validate_movie_callback
 
 def start_rabbitmq_consumers():
     """
     Démarre tous les consommateurs RabbitMQ nécessaires.
     """
     app = current_app._get_current_object()
-    Thread(target=start_consumer, args=("UserDeleted", lambda ch, method, properties, body: user_deleted_callback(app, ch, method, properties, body))).start()
+    Thread(target=start_consumer, args=("UserDeleted", lambda ch, method, properties, body: user_deleted_callback(app, ch, method, properties, body), 'fanout')).start()
+    Thread(target=start_consumer, args=("validate_movie_queue", partial(validate_movie_callback, app), 'direct', "validate_movie_queue")).start()
+    print("Tous les consommateurs RabbitMQ ont été démarrés.")
 
 def publish_event(event_name, message):
     """

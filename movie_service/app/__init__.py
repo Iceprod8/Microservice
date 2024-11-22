@@ -12,7 +12,6 @@ import sys
 sys.stdout.reconfigure(line_buffering=True)
 sys.stderr.reconfigure(line_buffering=True)
 
-
 def create_app():
     app = Flask(__name__)
     app.config.from_prefixed_env()

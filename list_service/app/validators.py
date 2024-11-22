@@ -9,7 +9,6 @@ class RPCClient:
         self.connection = pika.BlockingConnection(pika.ConnectionParameters('message-broker'))
         self.channel = self.connection.channel()
         
-        # Déclare une queue temporaire pour les réponses
         result = self.channel.queue_declare(queue='', exclusive=True)
         self.callback_queue = result.method.queue
         
@@ -22,12 +21,14 @@ class RPCClient:
         self.corr_id = None
 
     def on_response(self, ch, method, properties, body):
+        print(f"Réponse reçue : {body}, correlation_id attendu : {self.corr_id}")
         if self.corr_id == properties.correlation_id:
             self.response = json.loads(body)
 
     def call(self, message):
         self.response = None
         self.corr_id = str(uuid.uuid4())
+        print(f"Envoi du message avec correlation_id: {self.corr_id}")
         self.channel.basic_publish(
             exchange='',
             routing_key=self.queue_name,
@@ -37,13 +38,12 @@ class RPCClient:
             ),
             body=json.dumps(message)
         )
-        print(f"Message publié avec correlation_id: {self.corr_id}")
-
         start_time = time.time()
         while self.response is None:
             self.connection.process_data_events()
             if time.time() - start_time > 10:
                 raise TimeoutError("Timeout: aucune réponse reçue pour la requête RPC.")
+        print(f"Réponse reçue pour correlation_id: {self.corr_id}")
         return self.response
 
 # Valider l'utilisateur via RPC

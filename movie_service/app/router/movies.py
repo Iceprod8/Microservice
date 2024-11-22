@@ -36,7 +36,6 @@ def add_movie():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-
 @movie_blueprint.route("/all_recent_release", methods=["GET"])
 def get_recent_release_movies():
     try:
@@ -45,7 +44,6 @@ def get_recent_release_movies():
         return jsonify(movies_schema.dump(movies))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 @movie_blueprint.route("/all", methods=["GET"])
 def get_movies():
@@ -135,7 +133,6 @@ def get_popular_movies():
     except Exception as e:
         return jsonify({"error": f"An error occurred: {str(e)}"}), 500
 
-    
 @movie_blueprint.route("/search", methods=["GET"])
 def search_movie_by_title():
     try:

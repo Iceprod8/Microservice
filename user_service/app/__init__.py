@@ -39,6 +39,6 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-        start_rabbitmq_consumers()
+        start_rabbitmq_consumers(app)
         
     return app
