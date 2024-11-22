@@ -68,10 +68,10 @@ def generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rati
 
     # fusionner les deux dict
     all_movies = best_movies_for_genres_users + best_movies_for_directors_users
+    all_movies = [movie for movie in all_movies if movie not in movies_fav_list]
     print("all_movies", all_movies)
     print("movies_already_seen", movies_already_seen)
     recommendations = all_movies
-    recommendations = [movie for movie in all_movies if movie not in movies_fav_list]
     # retirer les films que le user a deja vu
     if not movies_already_seen["message"] :
         recommendations = [movie for movie in all_movies if movie not in movies_already_seen]
