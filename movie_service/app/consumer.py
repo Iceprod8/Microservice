@@ -20,7 +20,6 @@ def start_consumer(exchange_name, callback, exchange_type='fanout', queue_name=N
             channel.queue_declare(queue=queue_name)
         channel.queue_bind(exchange=exchange_name, queue=queue_name)
         channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=auto_ack)
-        print(f"Consuming from exchange '{exchange_name}' (type: {exchange_type}) with queue '{queue_name}'")
         channel.start_consuming()
     except Exception as e:
         print(f"Erreur dans start_consumer : {e}")
@@ -43,8 +42,6 @@ def user_deleted_callback(app, ch, method, properties, body):
                 db.session.commit()
                 for movie_id in affected_movie_ids:
                     update_movie_rating(movie_id)
-
-                print(f"[x] Deleted all ratings for user_id: {user_id} and updated movie ratings.")
     except Exception as e:
         print(f"[!] Error handling UserDeleted event: {e}")
 
@@ -53,7 +50,6 @@ def validate_movie_callback(app, ch, method, properties, body):
     Consommateur RabbitMQ pour valider l'existence d'un film.
     """
     try:
-        print(f"Message reçu pour validation de film : {body}")
         request = json.loads(body)
         movie_id = request.get("movie_id")
         with app.app_context():
@@ -73,7 +69,6 @@ def validate_movie_callback(app, ch, method, properties, body):
                 }
             else:
                 response = {"is_valid": False, "data": {"message": "Movie not found"}}
-        print(f"Réponse publiée avec correlation_id {properties.correlation_id}")
         ch.basic_publish(
             exchange='',
             routing_key=properties.reply_to,

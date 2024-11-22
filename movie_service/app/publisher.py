@@ -12,7 +12,6 @@ def start_rabbitmq_consumers():
     app = current_app._get_current_object()
     Thread(target=start_consumer, args=("UserDeleted", lambda ch, method, properties, body: user_deleted_callback(app, ch, method, properties, body), 'fanout')).start()
     Thread(target=start_consumer, args=("validate_movie_queue", partial(validate_movie_callback, app), 'direct', "validate_movie_queue")).start()
-    print("Tous les consommateurs RabbitMQ ont été démarrés.")
 
 def publish_event(event_name, message):
     """

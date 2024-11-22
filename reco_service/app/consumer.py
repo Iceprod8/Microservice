@@ -16,7 +16,6 @@ def start_consumer(exchange_name, callback):
         queue_name = result.method.queue
         channel.queue_bind(exchange=exchange_name, queue=queue_name)
         channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
-        print(f"Consuming from exchange '{exchange_name}' with unique queue '{queue_name}'")
         channel.start_consuming()
     except Exception as e:
         print(f"Erreur dans start_consumer : {e}")
@@ -34,7 +33,6 @@ def movie_deleted_callback(app, ch, method, properties, body):
                 for reco in recommendations:
                     db.session.delete(reco)
                 db.session.commit()
-                print(f"[x] Removed movie {movie_id} from recommendations.")
     except Exception as e:
         print(f"[!] Error handling MovieDeleted event: {e}")
 
@@ -47,7 +45,6 @@ def movie_added_callback(app, ch, method, properties, body):
         movie_id = message.get("movie_id")
         if movie_id:
             with app.app_context():
-                print(f"[x] Movie {movie_id} added. Recalculating recommendations for all users.")
                 user_ids = db.session.query(Recommendation.id_user).distinct().all()
                 user_ids = [user_id[0] for user_id in user_ids]
                 for user_id in user_ids:
@@ -59,7 +56,6 @@ def movie_added_callback(app, ch, method, properties, body):
                         db.session.add(new_reco)
 
                 db.session.commit()
-                print(f"[x] Recommendations recalculated for all users after adding movie {movie_id}.")
     except Exception as e:
         print(f"[!] Error handling MovieAdded event: {e}")
 
@@ -74,7 +70,6 @@ def movie_updated_callback(app, ch, method, properties, body):
 
         if movie_id:
             with app.app_context():
-                print(f"[x] Movie {movie_id} updated. Recalculating recommendations for all users.")
                 user_ids = db.session.query(Recommendation.id_user).filter_by(id_movie=movie_id).distinct().all()
                 user_ids = [user_id[0] for user_id in user_ids]
 
@@ -87,7 +82,6 @@ def movie_updated_callback(app, ch, method, properties, body):
                         db.session.add(new_reco)
 
                 db.session.commit()
-                print(f"[x] Recommendations recalculated for affected users after movie {movie_id} genre change.")
     except Exception as e:
         print(f"[!] Error handling MovieUpdated event: {e}")
 
@@ -104,7 +98,6 @@ def user_deleted_callback(app, ch, method, properties, body):
                 for reco in recommendations:
                     db.session.delete(reco)
                 db.session.commit()
-                print(f"[x] Removed all recommendations for user {user_id}.")
     except Exception as e:
         print(f"[!] Error handling UserDeleted event: {e}")
 
@@ -118,7 +111,6 @@ def preference_updated_callback(app, ch, method, properties, body):
         preferences = message.get("preferences", [])
         if user_id:
             with app.app_context():
-                print(f"[x] Preferences updated for user {user_id}: {preferences}")
                 movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen = get_all_datas(user_id)
                 new_recommendations = generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen)
                 Recommendation.query.filter_by(id_user=user_id).delete()
@@ -126,7 +118,6 @@ def preference_updated_callback(app, ch, method, properties, body):
                     new_reco = Recommendation(id_user=user_id, id_movie=movie['id'])
                     db.session.add(new_reco)
                 db.session.commit()
-                print(f"[x] Recommendations updated for user {user_id}.")
     except Exception as e:
         print(f"[!] Error handling PreferenceUpdated event: {e}")
 
@@ -147,6 +138,5 @@ def list_updated_callback(app, ch, method, properties, body):
                     new_reco = Recommendation(id_user=user_id, id_movie=movie['id'])
                     db.session.add(new_reco)
                 db.session.commit()
-                print(f"[x] Recommendations updated for user {user_id}.")
     except Exception as e:
         print(f"[!] Error handling UpdateList event: {e}")

@@ -14,7 +14,6 @@ def start_consumers(exchange_name, callback, app, queue_name):
         channel.exchange_declare(exchange=exchange_name, exchange_type='direct')
         channel.queue_declare(queue=queue_name)
         channel.queue_bind(exchange=exchange_name, queue=queue_name)
-        print(f"Consommateur démarré pour {exchange_name} avec la queue {queue_name}")
         channel.basic_consume(queue=queue_name, on_message_callback=partial(callback, app), auto_ack=False)
         channel.start_consuming()
     except Exception as e:
@@ -25,7 +24,6 @@ def validate_user_callback(app, ch, method, properties, body):
     Traite les messages de validation d'utilisateur.
     """
     try:
-        print(f"Message reçu pour validation d'utilisateur : {body}")
         request = json.loads(body)
         user_id = request.get("user_id")
 
@@ -43,8 +41,6 @@ def validate_user_callback(app, ch, method, properties, body):
                 }
             else:
                 response = {"is_valid": False, "data": {"message": "User not found"}}
-
-        print(f"Réponse publiée avec correlation_id {properties.correlation_id}")
         ch.basic_publish(
             exchange='',
             routing_key=properties.reply_to,
