@@ -1,5 +1,14 @@
+from threading import Thread
 import pika
 import json
+from flask import current_app
+from .consumer import start_consumers, validate_user_callback
+
+def start_rabbitmq_consumers(app):
+    """
+    Démarre le consommateurs pour la queue de validation.
+    """
+    Thread(target=start_consumers, args=("validate_user_exchange", validate_user_callback, app, "validate_user_queue")).start()
 
 def publish_event(event_name, message):
     """

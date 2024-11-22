@@ -15,7 +15,6 @@ def start_consumer(exchange_name, callback):
         queue_name = result.method.queue
         channel.queue_bind(exchange=exchange_name, queue=queue_name)
         channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
-        print(f"Consuming from exchange '{exchange_name}' with unique queue '{queue_name}'")
         channel.start_consuming()
     except Exception as e:
         print(f"Erreur dans start_consumer : {e}")
@@ -33,7 +32,6 @@ def user_deleted_callback(app, ch, method, properties, body):
                 for user_list in lists:
                     db.session.delete(user_list)
                 db.session.commit()
-                print(f"[x] Deleted all lists for user_id: {user_id}")
     except Exception as e:
         print(f"[!] Error handling UserDeleted event: {e}")
 
@@ -50,6 +48,5 @@ def movie_deleted_callback(app, ch, method, properties, body):
                 for entry in entries:
                     db.session.delete(entry)
                 db.session.commit()
-                print(f"[x] Deleted all list entries for movie_id: {movie_id}")
     except Exception as e:
         print(f"[!] Error handling MovieDeleted event: {e}")

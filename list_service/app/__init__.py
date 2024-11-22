@@ -29,7 +29,6 @@ def create_app():
 def initialize_list_types():
     # Vérifie si la table ListType est déjà remplie
     if ListType.query.count() > 0:
-        print("Les types de listes sont déjà initialisés.")
         return
 
     # Si la table est vide, on ajoute les types de listes
@@ -38,4 +37,3 @@ def initialize_list_types():
         new_type = ListType(name_list=list_type)
         db.session.add(new_type)
     db.session.commit()
-    print("Types de listes initialisés dans la base de données.")
