@@ -150,9 +150,7 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"const jsonData = pm.response.json();\r",
-											"pm.collectionVariables.set(\"bearer\", jsonData.access_token);\r",
-											"pm.collectionVariables.set(\"user_id\", jsonData._id);"
+											""
 										],
 										"type": "text/javascript",
 										"packages": {}
@@ -345,7 +343,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"user_id\": 1, \"score\": 4.1}"
+									"raw": "{\"user_id\": {{user_id}}, \"score\": 4.1}"
 								},
 								"url": {
 									"raw": "http://localhost:80/movies/:id/rate",
@@ -853,7 +851,7 @@
 							"variable": [
 								{
 									"key": "user_id",
-									"value": "1"
+									"value": "{{user_id}}"
 								}
 							]
 						}
