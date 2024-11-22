@@ -21,5 +21,4 @@ class RatingSchema(Schema):
     movie_id = fields.Int(required=True)
     user_id = fields.Int(required=True)
     score = fields.Float(required=True, validate=validate.Range(min=1, max=5))
-
     movie = fields.Nested("MovieSchema", only=("id", "title", "rating"), dump_only=True)

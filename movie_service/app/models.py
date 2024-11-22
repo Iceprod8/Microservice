@@ -13,6 +13,7 @@ class Movie(db.Model):
     cast = db.Column(db.Text)
     rating = db.Column(db.Float, default=0)
     genre = db.relationship("Genre", back_populates="movies")
+    ratings = db.relationship("Rating", backref="movie", lazy="dynamic")
 
     def __repr__(self):
         return f"<Movie {self.title}>"

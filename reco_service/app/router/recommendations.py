@@ -53,7 +53,8 @@ def get_all_datas(user_id):
 
 def generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen, user_id):
     recommendations = []
-
+    
+    print(movies_fav_list, movie_user_rating)
     # recupère les réalisateurs des films que le user a bien noté ou a mis en fav
     directors_user_rating = [movie["director"] for movie in movie_user_rating]
     directors_fav_movies = [movie["director"] for movie in movies_fav_list]

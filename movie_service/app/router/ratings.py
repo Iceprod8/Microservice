@@ -56,23 +56,29 @@ def update_movie_rating(movie_id):
 
 @rating_blueprint.route("/users/<int:user_id>/rated_movies", methods=["GET"])
 def get_rated_movies_by_user(user_id):
-    user_ratings = Rating.query.filter_by(user_id=user_id).limit(50).all()
-    if not user_ratings:
-        return jsonify([]), 200
-    rated_movies = [
-        {
-            "movie_id": rating.movie.id,
-            "title": rating.movie.title,
-            "genre": rating.movie.genre.name if rating.movie.genre else None,
-            "director": rating.movie.director,
-            "release_date": rating.movie.release_date,
-            "duration": rating.movie.duration,
-            "synopsis": rating.movie.synopsis,
-            "cast": rating.movie.cast,
-            "average_rating": rating.movie.rating,
-            "user_rating": rating.score
-        }
-        for rating in user_ratings
-    ]
-    
-    return jsonify(rated_movies), 200
+    """
+    Retrieve movies rated by a specific user.
+    """
+    try:
+        ratings = Rating.query.filter_by(user_id=user_id).all()
+        if not ratings:
+            return jsonify({"message": "No ratings found for this user"}), 404
+
+        rated_movies = [
+            {
+                "movie_id": rating.movie_id,
+                "title": rating.movie.title if rating.movie else None,
+                "genre": rating.movie.genre.name if rating.movie.genre else None,
+                "director": rating.movie.director,
+                "release_date": rating.movie.release_date,
+                "duration": rating.movie.duration,
+                "synopsis": rating.movie.synopsis,
+                "cast": rating.movie.cast,
+                "score": rating.score
+            }
+            for rating in ratings
+        ]
+
+        return jsonify(rated_movies), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
