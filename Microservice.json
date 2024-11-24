@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "8860f732-9f7f-4c2d-8ad7-d8993bdf3279",
+		"_postman_id": "1d96d700-e579-46cf-b7e5-d190ec229077",
 		"name": "Microservice",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "35174540"
@@ -14,6 +14,20 @@
 					"item": [
 						{
 							"name": "Register User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const jsonData = pm.response.json();\r",
+											"pm.collectionVariables.set(\"bearer\", jsonData.access_token);\r",
+											"pm.collectionVariables.set(\"user_id\", jsonData.user.uid);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [
@@ -43,6 +57,19 @@
 						},
 						{
 							"name": "Login User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const jsonData = pm.response.json();\r",
+											"pm.collectionVariables.set(\"bearer\", jsonData.access_token);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [
@@ -109,7 +136,7 @@
 									"variable": [
 										{
 											"key": "uid",
-											"value": "1"
+											"value": "{{user_id}}"
 										}
 									]
 								}
@@ -118,6 +145,18 @@
 						},
 						{
 							"name": "Update User",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
 							"request": {
 								"method": "PUT",
 								"header": [
@@ -144,7 +183,7 @@
 									"variable": [
 										{
 											"key": "uid",
-											"value": "1"
+											"value": "{{user_id}}"
 										}
 									]
 								}
@@ -170,7 +209,7 @@
 									"variable": [
 										{
 											"key": "uid",
-											"value": "1"
+											"value": "{{user_id}}"
 										}
 									]
 								}
@@ -211,7 +250,7 @@
 									"variable": [
 										{
 											"key": "uid",
-											"value": "1"
+											"value": "{{user_id}}"
 										}
 									]
 								}
@@ -238,7 +277,7 @@
 									"variable": [
 										{
 											"key": "uid",
-											"value": "1"
+											"value": "{{user_id}}"
 										}
 									]
 								}
@@ -266,7 +305,7 @@
 									"variable": [
 										{
 											"key": "uid",
-											"value": "1"
+											"value": "{{user_id}}"
 										},
 										{
 											"key": "preference_id",
@@ -295,11 +334,16 @@
 									{
 										"key": "Content-Type",
 										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{bearer}}",
+										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"user_id\": 1, \"score\": 4.5}"
+									"raw": "{\"user_id\": {{user_id}}, \"score\": 4.1}"
 								},
 								"url": {
 									"raw": "http://localhost:80/movies/:id/rate",
@@ -316,7 +360,7 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "1"
+											"value": "{{movie_id}}"
 										}
 									]
 								}
@@ -327,7 +371,13 @@
 							"name": "Get Movies Rated by User",
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{bearer}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "http://localhost:80/movies/users/:user_id/rated_movies",
 									"protocol": "http",
@@ -344,7 +394,7 @@
 									"variable": [
 										{
 											"key": "user_id",
-											"value": "1"
+											"value": "{{user_id}}"
 										}
 									]
 								}
@@ -358,12 +408,30 @@
 					"item": [
 						{
 							"name": "Add Movie",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const jsonData = pm.response.json();\r",
+											"pm.collectionVariables.set(\"movie_id\", jsonData.movie.id);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [
 									{
 										"key": "Content-Type",
 										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{bearer}}",
+										"type": "text"
 									}
 								],
 								"body": {
@@ -389,7 +457,13 @@
 							"name": "Get All Movies",
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{bearer}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "http://localhost:80/movies/all",
 									"protocol": "http",
@@ -409,7 +483,13 @@
 							"name": "Get Single Movie",
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{bearer}}",
+										"type": "text"
+									}
+								],
 								"url": {
 									"raw": "http://localhost:80/movies/:id",
 									"protocol": "http",
@@ -424,7 +504,7 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "1"
+											"value": "{{movie_id}}"
 										}
 									]
 								}
@@ -439,11 +519,16 @@
 									{
 										"key": "Content-Type",
 										"value": "application/json"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{bearer}}",
+										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"title\": \"Inception Updated\", \"duration\": 150}"
+									"raw": "{\"title\": \"Inception 000\", \"duration\": 150}"
 								},
 								"url": {
 									"raw": "http://localhost:80/movies/:id",
@@ -459,7 +544,7 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "1"
+											"value": "{{movie_id}}"
 										}
 									]
 								}
@@ -470,9 +555,15 @@
 							"name": "Delete Movie",
 							"request": {
 								"method": "DELETE",
-								"header": [],
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{bearer}}",
+										"type": "text"
+									}
+								],
 								"url": {
-									"raw": "http://localhost:80/movies/movies/:id",
+									"raw": "http://localhost:80/movies/:id",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -480,14 +571,74 @@
 									"port": "80",
 									"path": [
 										"movies",
-										"movies",
 										":id"
 									],
 									"variable": [
 										{
 											"key": "id",
-											"value": "1"
+											"value": "{{movie_id}}"
 										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Popular Movie",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{bearer}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:80/movies/popular",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "80",
+									"path": [
+										"movies",
+										"popular"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Movie by id",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{bearer}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ids\": [\r\n        1,\r\n        2,\r\n        3,\r\n        4\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:80/movies/movies-by-ids",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "80",
+									"path": [
+										"movies",
+										"movies-by-ids"
 									]
 								}
 							},
@@ -505,22 +656,30 @@
 					"request": {
 						"method": "POST",
 						"header": [
-							{"key": "Content-Type", "value": "application/json"}
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearer}}",
+								"type": "text"
+							}
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{}"
+							"raw": "{\r\n    \"id_movie\": {{movie_id}},\r\n    \"id_user\": {{user_id}},\r\n    \"id_list_type\": 1\r\n}"
 						},
 						"url": {
-							"raw": "http://localhost:80/lists/users/:user_id/:movie_id/:list_id",
+							"raw": "http://localhost:80/lists/add",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "80",
-							"path": ["lists", "users", ":user_id", ":movie_id", ":list_id"],
-							"variable": [
-								{"key": "user_id", "value": "1"},
-								{"key": "movie_id", "value": "1"},
-								{"key": "list_id", "value": "1"}
+							"path": [
+								"lists",
+								"add"
 							]
 						}
 					},
@@ -530,15 +689,30 @@
 					"name": "Get Movies in List",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearer}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "http://localhost:80/lists/:list_id/movies",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "80",
-							"path": ["lists", ":list_id", "movies"],
+							"path": [
+								"lists",
+								":list_id",
+								"movies"
+							],
 							"variable": [
-								{"key": "list_id", "value": "1"}
+								{
+									"key": "list_id",
+									"value": "1"
+								}
 							]
 						}
 					},
@@ -548,16 +722,35 @@
 					"name": "Delete Movie from List",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearer}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "http://localhost:80/lists/:list_id/movies/:movie_id",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "80",
-							"path": ["lists", ":list_id", "movies", ":movie_id"],
+							"path": [
+								"lists",
+								":list_id",
+								"movies",
+								":movie_id"
+							],
 							"variable": [
-								{"key": "list_id", "value": "1"},
-								{"key": "movie_id", "value": "1"}
+								{
+									"key": "list_id",
+									"value": "1"
+								},
+								{
+									"key": "movie_id",
+									"value": "1"
+								}
 							]
 						}
 					},
@@ -567,16 +760,35 @@
 					"name": "Delete User List",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearer}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "http://localhost:80/lists/:list_id/users/:user_id",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "80",
-							"path": ["lists", ":list_id", "users", ":user_id"],
+							"path": [
+								"lists",
+								":list_id",
+								"users",
+								":user_id"
+							],
 							"variable": [
-								{"key": "list_id", "value": "1"},
-								{"key": "user_id", "value": "1"}
+								{
+									"key": "list_id",
+									"value": "1"
+								},
+								{
+									"key": "user_id",
+									"value": "1"
+								}
 							]
 						}
 					},
@@ -586,18 +798,106 @@
 					"name": "Get All List Types",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearer}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "http://localhost:80/lists/list-types",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "80",
-							"path": ["lists", "list-types"]
+							"path": [
+								"lists",
+								"list-types"
+							]
 						}
 					},
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Reco Service",
+			"item": [
+				{
+					"name": "Get Recommendation",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{bearer}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:80/reco/:user_id/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "80",
+							"path": [
+								"reco",
+								":user_id",
+								""
+							],
+							"variable": [
+								{
+									"key": "user_id",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "bearer",
+			"value": "YOUR-BEARER-TOKEN",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "YOUR_ID_USER",
+			"type": "string"
+		},
+		{
+			"key": "movie_id",
+			"value": "YOUR_ID_MOVIE",
+			"type": "string"
 		}
 	]
 }

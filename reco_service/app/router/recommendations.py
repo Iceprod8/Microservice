@@ -53,7 +53,6 @@ def get_all_datas(user_id):
 
 def generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rating, preferred_genres, movies_already_seen, user_id):
     recommendations = []
-
     # recupère les réalisateurs des films que le user a bien noté ou a mis en fav
     directors_user_rating = [movie["director"] for movie in movie_user_rating]
     directors_fav_movies = [movie["director"] for movie in movies_fav_list]
@@ -71,12 +70,11 @@ def generate_recommendations(movies_fav_list, movie_best_rating, movie_user_rati
     all_movies = [movie for movie in all_movies if movie not in movies_fav_list]
     print("all_movies", all_movies)
     print("movies_already_seen", movies_already_seen)
+
     recommendations = all_movies
     # retirer les films que le user a deja vu
     if not movies_already_seen["message"] :
         recommendations = [movie for movie in all_movies if movie not in movies_already_seen]
-    recommendations
-    print("recommendations", recommendations)
 
     # melanger et en prendre que 10
     random.shuffle(recommendations)
